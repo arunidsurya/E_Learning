@@ -14,7 +14,7 @@ class userController {
       const userData = req.body;
       //   console.log(userData);
       const user = await this.userCase.registrationUser(userData);
-      res.json(user);
+      res.json({ user, success: true });
     } catch (error) {
       console.log(error);
     }
@@ -29,7 +29,10 @@ class userController {
         activationCode,
         activationToken
       );
-      res.json(user);
+
+      res.status(201).json({
+        user,
+      });
     } catch (error) {
       console.log(error);
     }

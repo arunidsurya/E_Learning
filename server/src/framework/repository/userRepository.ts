@@ -55,16 +55,8 @@ class userRepository implements IUserRepository {
   }
 
   async isLoggedEmail(email: string): Promise<User | null> {
-    const userDataStr = await redis.get(email);
-    if (!userDataStr) {
-      return null;
-    }
-    const userData = JSON.parse(userDataStr);
-    // console.log(userData.email);
-    const userEmail = userData.email;
-    if (userEmail !== email) {
-      return null;
-    }
+    const userData = await userModel.findOne({ email });
+
     return userData;
   }
 

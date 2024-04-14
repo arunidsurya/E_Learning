@@ -21,7 +21,7 @@ class userUserCase {
   async registrationUser(user: User) {
     try {
       const email = user.email;
-      console.log(email);
+      // console.log(email);
       const isEmailExist = await this.iUserRepository.findByEmail(email);
       if (isEmailExist) {
         return { success: false, message: "Email already exists" };
@@ -57,11 +57,14 @@ class userUserCase {
   }
 
   async activateUser(activationCode: string, activationToken: string) {
+    console.log("activationToken :", activationToken);
+    console.log("activationCode :", activationCode);
     try {
       const newUser = await this.JwtToken.otpVerifyJwt(
         activationToken,
         activationCode
       );
+
       if (!newUser) {
         return {
           status: 500,
@@ -70,7 +73,8 @@ class userUserCase {
         };
       }
       // console.log(newUser.user);
-      const savedUser = this.iUserRepository.createUser(newUser.user);
+      const savedUser = await this.iUserRepository.createUser(newUser.user);
+      // console.log("saveduser :", savedUser);
       if (!savedUser) {
         return {
           status: 500,
@@ -78,7 +82,8 @@ class userUserCase {
           message: "internal error, please try again later",
         };
       }
-      return savedUser;
+
+      return { savedUser, success: true };
     } catch (error) {
       console.log(error);
     }
@@ -140,6 +145,7 @@ class userUserCase {
         success: true,
         message: "Please check your email to confirm your account",
         activationToken,
+        email,
       };
     }
   }
@@ -148,6 +154,8 @@ class userUserCase {
     activationToken: string
   ) {
     try {
+      console.log("code:", activationCode);
+      console.log("token:", activationToken);
       const newUser = await this.JwtToken.otpVerifyJwt(
         activationToken,
         activationCode

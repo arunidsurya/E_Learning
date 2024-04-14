@@ -1,6 +1,6 @@
 require("dotenv").config();
 import mongoose, { Document, Model, Schema } from "mongoose";
-import bycrypt from "bcryptjs";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const emailRegexPattern: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -70,11 +70,23 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
 
 // Hash password before saving
 
+// userSchema.pre<IUser>("save", async function (next: (err?: Error) => void) {
+//   if (!this.isModified("password") || !this.password) {
+//     return next();
+//   }
+//   try {
+//     this.password = await bcrypt.hash(this.password, 10);
+//     return next();
+//   } catch (error) {
+//     return next(error as Error);
+//   }
+// });
+
 userSchema.pre<IUser>("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
-  this.password = await bycrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
@@ -96,7 +108,7 @@ userSchema.methods.SignRefreshToken = function () {
 userSchema.methods.comparePassword = async function (
   enteredPassword: string
 ): Promise<boolean> {
-  return await bycrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
 const userModel: Model<IUser> = mongoose.model("User", userSchema);

@@ -1,3 +1,4 @@
+import { set } from "mongoose";
 import User from "../../entities/userEntity";
 import IUserRepository from "../../usecase/interface/IUserRepository";
 import { redis } from "../config/redis";
@@ -36,14 +37,51 @@ class userRepository implements IUserRepository {
   ): Promise<string | null> {
     try {
       const isPasswordMatch = await user.comparePassword(password);
+      console.log("match:", isPasswordMatch);
+
       if (!isPasswordMatch) {
+        // Check if password does not match
+        return null; // Return null if password does not match
+      } else {
+        const token = await this.JwtToken.SignJwt(user);
+        redis.set(user.email, JSON.stringify(user) as any);
+        // console.log(token);
+        return token;
+      }
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async isLoggedEmail(email: string): Promise<User | null> {
+    const userDataStr = await redis.get(email);
+    if (!userDataStr) {
+      return null;
+    }
+    const userData = JSON.parse(userDataStr);
+    // console.log(userData.email);
+    const userEmail = userData.email;
+    if (userEmail !== email) {
+      return null;
+    }
+    return userData;
+  }
+
+  async forgotPasswordConfirm(
+    email: string,
+    newPassword: string
+  ): Promise<User | null> {
+    try {
+      const user = await userModel.findOne({ email: email });
+      if (!user) {
+        // Handle the case where the user is not found
         return null;
       }
-
-      const token = await this.JwtToken.SignJwt(email, password);
+      user.password = newPassword;
+      await user.save();
       redis.set(user.email, JSON.stringify(user) as any);
-      // console.log(token);
-      return token;
+      return user;
     } catch (error) {
       console.error(error);
       return null;

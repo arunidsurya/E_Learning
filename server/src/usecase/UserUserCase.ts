@@ -33,8 +33,8 @@ class userUserCase {
         activationCode
       );
       const activationToken = await activationTokenPromise;
-      console.log(activationToken);
-      console.log(activationCode);
+      // console.log(activationToken);
+      // console.log(activationCode);
 
       const subject = "Please find the below otp to activate your account";
 
@@ -69,7 +69,7 @@ class userUserCase {
           message: "Token expired,Please register again",
         };
       }
-      console.log(newUser.user);
+      // console.log(newUser.user);
       const savedUser = this.iUserRepository.createUser(newUser.user);
       if (!savedUser) {
         return {
@@ -79,11 +79,13 @@ class userUserCase {
         };
       }
       return savedUser;
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
   async loginUser(email: string, password: string) {
     try {
-      console.log(email);
+      // console.log(email);
       const user = await this.iUserRepository.findByEmail(email);
       if (!user) {
         return {
@@ -93,8 +95,102 @@ class userUserCase {
         };
       }
       const token = await this.iUserRepository.loginUser(user, email, password);
-      return { user, token };
+      if (token) {
+        return { status: 201, success: true, user, token };
+      }
+      return {
+        status: 500,
+        success: false,
+        message: "Invalid email or password!!",
+      };
     } catch (error) {
+      console.log(error);
+    }
+  }
+  async forgotPasswordOtp(email: string) {
+    const user = await this.iUserRepository.isLoggedEmail(email);
+    if (!user) {
+      return {
+        status: 500,
+        success: false,
+        message: "Invalid email address!",
+      };
+    }
+    // console.log("user :", user);
+
+    const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const activationTokenPromise = this.JwtToken.otpGenerateJwt(
+      user,
+      activationCode
+    );
+    const activationToken = await activationTokenPromise;
+    // console.log(activationToken);
+    // console.log(activationCode);
+
+    const subject = "Please find the below otp to confirm your account";
+
+    const sendmail = this.sendEmail.sendMail({
+      email,
+      subject,
+      activationCode,
+    });
+    if (sendMail) {
+      return {
+        status: 201,
+        success: true,
+        message: "Please check your email to confirm your account",
+        activationToken,
+      };
+    }
+  }
+  async forgotPasswordApproval(
+    activationCode: string,
+    activationToken: string
+  ) {
+    try {
+      const newUser = await this.JwtToken.otpVerifyJwt(
+        activationToken,
+        activationCode
+      );
+      if (!newUser) {
+        return {
+          status: 500,
+          success: false,
+          message: "Token expired,Please register again",
+        };
+      }
+      // console.log(newUser.user);
+      return {
+        status: 201,
+        success: true,
+        message: "otp verified successfully",
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async forgotPasswordConfirm(email: string, newPassword: string) {
+    try {
+      const user = await this.iUserRepository.forgotPasswordConfirm(
+        email,
+        newPassword
+      );
+      if (!user) {
+        return {
+          status: 500,
+          success: false,
+          message: "password change unsccessfull, please try agin later",
+        };
+      } else {
+        return {
+          status: 201,
+          success: true,
+          message:
+            "password changed successfully, please proceed to login page",
+          user,
+        };
+      }
+    } catch (error: any) {
       console.log(error);
     }
   }

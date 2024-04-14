@@ -3,11 +3,10 @@ import IjwtToken from "../../usecase/interface/IjwtToken";
 import User from "../../entities/userEntity";
 
 class JwtTokenService implements IjwtToken {
-  async SignJwt(email: string, password: string): Promise<string> {
+  async SignJwt(user: User): Promise<string> {
     const token = Jwt.sign(
       {
-        email,
-        password,
+        user,
       },
       process.env.ACTIVATION_SECRET as Secret,
       {

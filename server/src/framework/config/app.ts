@@ -2,6 +2,7 @@ import express, { urlencoded } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "../routes/userRoutes";
+import adminRouter from "../routes/adminRoutes";
 require("dotenv").config();
 
 export const createServer = () => {
@@ -17,6 +18,7 @@ export const createServer = () => {
       })
     );
     app.use("/api/v1", userRouter);
+    app.use("/api/v1", adminRouter);
     return app;
   } catch (error) {
     console.log("error");

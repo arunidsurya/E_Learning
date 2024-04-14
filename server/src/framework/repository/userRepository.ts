@@ -37,7 +37,7 @@ class userRepository implements IUserRepository {
   ): Promise<string | null> {
     try {
       const isPasswordMatch = await user.comparePassword(password);
-      console.log("match:", isPasswordMatch);
+      // console.log("match:", isPasswordMatch);
 
       if (!isPasswordMatch) {
         // Check if password does not match

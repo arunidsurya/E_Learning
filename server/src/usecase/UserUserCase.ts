@@ -98,16 +98,22 @@ class userUserCase {
           success: false,
           message: "Invalid email or password!!",
         };
+      } else if (user.isBlocked) {
+        return {
+          status: 500,
+          success: false,
+          message: "Account suspended!!, please contact Admin",
+        };
       }
       const token = await this.iUserRepository.loginUser(user, email, password);
-      if (token) {
-        return { status: 201, success: true, user, token };
+      if (!token) {
+        return {
+          status: 500,
+          success: false,
+          message: "Invalid email or password!!",
+        };
       }
-      return {
-        status: 500,
-        success: false,
-        message: "Invalid email or password!!",
-      };
+      return { status: 201, success: true, user, token };
     } catch (error) {
       console.log(error);
     }

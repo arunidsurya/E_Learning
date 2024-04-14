@@ -1,6 +1,7 @@
 import Jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import IjwtToken from "../../usecase/interface/IjwtToken";
 import User from "../../entities/userEntity";
+import Admin from "../../entities/adminEntity";
 
 class JwtTokenService implements IjwtToken {
   async SignJwt(user: User): Promise<string> {
@@ -15,6 +16,24 @@ class JwtTokenService implements IjwtToken {
     );
 
     return token;
+  }
+  async AdminSignJwt(admin: Admin): Promise<string | null> {
+    try {
+      const token = Jwt.sign(
+        {
+          admin,
+        },
+        process.env.ACTIVATION_SECRET as Secret,
+        {
+          expiresIn: "1d",
+        }
+      );
+
+      return token;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
   async VerifyJwt(token: string): Promise<JwtPayload | null> {
     const jwtToken = process.env.JWt_SECRET_KEY as string;

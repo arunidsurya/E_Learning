@@ -47,16 +47,9 @@ class userController {
       if (data?.success) {
         res.cookie("access_token", data.token);
 
-        res.status(201).json({
-          success: true,
-          user: data.user,
-          accessToken: data.token,
-        });
+        res.status(201).json({ data });
       } else {
-        res.status(400).json({
-          success: false,
-          message: "invalid credentials",
-        });
+        res.json({ data });
       }
     } catch (error: any) {
       res.status(500).json({

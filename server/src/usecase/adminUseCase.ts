@@ -131,8 +131,6 @@ class adminUseCase {
       if (!newUser) {
         return false;
       }
-      // console.log("newUser :", newUser);
-
       return newUser;
     } catch (error) {
       console.log(error);

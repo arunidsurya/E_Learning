@@ -18,17 +18,17 @@ export const isAuthorized = async (
   res: Response,
   next: NextFunction
 ) => {
-  const access_token = req.cookies.admin_AccessToken as string;
-  // console.log("access_token:", access_token);
+  const admin_accessToken = req.cookies.admin_AccessToken as string;
+  // console.log("access_token:", admin_accessToken);
 
-  if (!access_token) {
+  if (!admin_accessToken) {
     return res
       .status(401)
       .json({ success: false, message: "Unauthorized - No token provided" });
   }
   try {
     const decoded = jwt.verify(
-      access_token,
+      admin_accessToken,
       process.env.ACTIVATION_SECRET as Secret
     ) as JwtPayload;
 

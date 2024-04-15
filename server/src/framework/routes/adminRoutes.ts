@@ -25,4 +25,20 @@ adminRouter.get("/admin/logout", isAuthorized, (req, res, next) => {
   controller.logoutAdmin(req, res, next);
 });
 
+adminRouter.get("/admin/getUsers", isAuthorized, (req, res, next) => {
+  controller.getUsers(req, res, next);
+});
+adminRouter.post("/admin/addUser", isAuthorized, (req, res, next) => {
+  controller.addUser(req, res, next);
+});
+adminRouter.post("/admin/editUser", isAuthorized, (req, res, next) => {
+  controller.editUser(req, res, next);
+});
+adminRouter.post("/admin/blockUser", isAuthorized, (req, res, next) => {
+  controller.blockUser(req, res, next);
+});
+adminRouter.post("/admin/unBlockUser", isAuthorized, (req, res, next) => {
+  controller.unBlockUser(req, res, next);
+});
+
 export default adminRouter;

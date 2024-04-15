@@ -13,6 +13,12 @@ interface IUserRepository {
     email: string,
     newPassword: string
   ): Promise<User | null>;
+  updateUserinfo(userData: User): Promise<User | null>;
+  updateUserPassword(
+    oldPassword: string,
+    newPassword: string,
+    email: string
+  ): Promise<User | null>;
 }
 
 export default IUserRepository;

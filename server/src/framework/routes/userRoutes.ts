@@ -34,5 +34,12 @@ userRouter.post("/user/forgot_password_approve", (req, res, next) => {
 userRouter.post("/user/forgot_password_confirm", (req, res, next) => {
   controller.forgotPasswordConfirm(req, res, next);
 });
+userRouter.put("/user/update_user_info", (req, res, next) => {
+  controller.upadteUserInfo(req, res, next);
+});
+
+userRouter.put("/user/update_user_password", (req, res, next) => {
+  controller.upadteUserpassword(req, res, next);
+});
 
 export default userRouter;

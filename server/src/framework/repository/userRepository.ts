@@ -79,6 +79,54 @@ class userRepository implements IUserRepository {
       return null;
     }
   }
+  async updateUserinfo(userData: User): Promise<User | null> {
+    try {
+      const { _id, name, email } = userData;
+      const user = await userModel.findOne({ _id });
+      if (!user) {
+        return null;
+      }
+      user.name = name;
+      user.email = email;
+
+      user.save();
+
+      return user;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async updateUserPassword(
+    oldPassword: string,
+    newPassword: string,
+    email: string
+  ): Promise<User | null> {
+    try {
+      // console.log(email);
+
+      const user = await userModel.findOne({ email }).select("+password");
+      // console.log(user);
+
+      if (!user) {
+        return null;
+      }
+      const isOldPasswordMatch = await user?.comparePassword(oldPassword);
+      console.log(isOldPasswordMatch);
+
+      if (!isOldPasswordMatch) {
+        return null;
+      }
+      user.password = newPassword;
+      await user.save();
+      redis.set(user.email, JSON.stringify(user) as any);
+
+      return user;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
 }
 
 export default userRepository;

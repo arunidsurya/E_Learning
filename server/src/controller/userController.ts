@@ -113,6 +113,68 @@ class userController {
       console.log(error);
     }
   }
+  async upadteUserInfo(req: Request, res: Response, next: NextFunction) {
+    const userData = req.body;
+    try {
+      const user = await this.userCase.updateUserInfo(userData);
+      if (!user) {
+        return res
+          .status(400)
+          .json({ success: false, message: "No file uploaded" });
+      }
+      res.status(201).json({ user });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  //   async upadteUserpassword(req: Request, res: Response, next: NextFunction) {
+  //     try {
+  //       const { oldPassword, newPassword, email } = req.body;
+  //       const user = await this.userCase.upadteUserpassword(
+  //         oldPassword,
+  //         newPassword,
+  //         email
+  //       );
+  //       console.log("controller :", user);
+
+  //       if (user == null) {
+  //         return res
+  //           .status(400)
+  //           .json({ success: false, message: "No file uploaded" });
+  //       }
+  //       res.json({ status: 201, success: true, user });
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // }
+  async upadteUserpassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { oldPassword, newPassword, email } = req.body;
+      const user = await this.userCase.upadteUserpassword(
+        oldPassword,
+        newPassword,
+        email
+      );
+      // console.log(user);
+      if (user && !user.success) {
+        return res.json({
+          success: false,
+          status: 400,
+          message: "Account updation unsuccessful. Please try again later.",
+        });
+      }
+
+      // Assuming update was successful, return a 200 status with the updated user data
+      res.status(200).json({ success: true, user });
+    } catch (error) {
+      console.log(error);
+      // Handle other errors, if any
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error." });
+    }
+  }
 }
 
 export default userController;

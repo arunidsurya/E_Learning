@@ -208,6 +208,60 @@ class userUserCase {
       console.log(error);
     }
   }
+  async updateUserInfo(userData: User) {
+    try {
+      const user = await this.iUserRepository.updateUserinfo(userData);
+      // console.log(user);
+
+      if (!user) {
+        return {
+          status: 500,
+          success: false,
+          message: "Account updation unsuccessfull, Please try again later",
+          user,
+        };
+      }
+      return {
+        status: 201,
+        success: true,
+        message: "Account updated successfully",
+        user,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async upadteUserpassword(
+    oldPassword: string,
+    newPassword: string,
+    email: string
+  ) {
+    try {
+      const user = await this.iUserRepository.updateUserPassword(
+        oldPassword,
+        newPassword,
+        email
+      );
+      // console.log("user :", user);
+
+      if (user === null) {
+        return {
+          status: 500,
+          success: false,
+          message: "Account updation unsuccessfull, Please try again later",
+          user,
+        };
+      }
+      return {
+        status: 201,
+        success: true,
+        message: "Password updated successfully",
+        user,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default userUserCase;

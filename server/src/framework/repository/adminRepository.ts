@@ -1,7 +1,9 @@
 import Admin from "../../entities/adminEntity";
+import Tutor from "../../entities/tutorEntity";
 import User from "../../entities/userEntity";
 import IAdminRepository from "../../usecase/interface/IAdminRepository";
 import adminModel from "../database/adminModel";
+import tutorModel from "../database/tutorModel";
 import userModel from "../database/userModel";
 
 class adminRepositoty implements IAdminRepository {
@@ -116,6 +118,77 @@ class adminRepositoty implements IAdminRepository {
       user = await user.save();
 
       return user;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async getTutors(): Promise<Tutor[] | null> {
+    try {
+      const tutors = await tutorModel.find({});
+      if (!tutors) {
+        return null;
+      }
+      return tutors;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async verifyTutor(_id: string): Promise<Tutor | null> {
+    try {
+      let tutor = await tutorModel.findOne({ _id });
+      if (!tutor) {
+        return null;
+      }
+      tutor.isVerified = true;
+      tutor = await tutor.save();
+
+      // console.log("newUser :", user);
+
+      return tutor;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async refuteTutor(_id: string): Promise<Tutor | null> {
+    try {
+      let tutor = await tutorModel.findOne({ _id });
+      if (!tutor) {
+        return null;
+      }
+      tutor.isVerified = false;
+      tutor = await tutor.save();
+
+      // console.log("newUser :", user);
+
+      return tutor;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async editTutor(tutorData: Tutor): Promise<Tutor | null> {
+    try {
+      const { _id, name, email, institute, qualifiaction, experience } =
+        tutorData;
+      // console.log(name, email, gender);
+
+      let tutor = await tutorModel.findOne({ _id });
+      if (!tutor) {
+        return null;
+      }
+      tutor.name = name;
+      tutor.email = email;
+      tutor.institute = institute;
+      tutor.qualifiaction = qualifiaction;
+      tutor.experience = experience;
+      tutor = await tutor.save();
+
+      // console.log("newUser :", user);
+
+      return tutor;
     } catch (error) {
       console.log(error);
       return null;

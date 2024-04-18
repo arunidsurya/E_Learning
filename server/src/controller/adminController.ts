@@ -133,6 +133,83 @@ class adminController {
       console.log(error);
     }
   }
+  async getTutors(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tutors = await this.adminCase.getTutors();
+      // console.log(tutors);
+
+      if (!tutors) {
+        res.json({
+          success: false,
+          status: 400,
+          message: "No users found!!",
+        });
+      }
+      res.status(201).json({
+        success: true,
+        tutors,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async verifyTutor(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req.body;
+      const newTutor = this.adminCase.verifyTutor(_id);
+      if (!newTutor) {
+        return res.json({
+          status: 400,
+          success: false,
+          message: "update newTutor unsuccessfull!!",
+        });
+      }
+      res.status(201).json({
+        success: true,
+        message: "newTutor edited successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async refuteTutor(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req.body;
+      const newTutor = this.adminCase.refuteTutor(_id);
+      if (!newTutor) {
+        return res.json({
+          status: 400,
+          success: false,
+          message: "update user unsuccessfull!!",
+        });
+      }
+      res.status(201).json({
+        success: true,
+        message: "User edited successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async editTutor(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tutorData = req.body;
+      const newTutor = this.adminCase.editTutor(tutorData);
+      if (!newTutor) {
+        return res.json({
+          status: 400,
+          success: false,
+          message: "update user unsuccessfull!!",
+        });
+      }
+      res.status(201).json({
+        success: true,
+        message: "User edited successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default adminController;

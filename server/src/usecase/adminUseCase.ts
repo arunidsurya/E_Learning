@@ -1,4 +1,5 @@
 import Admin from "../entities/adminEntity";
+import Tutor from "../entities/tutorEntity";
 import User from "../entities/userEntity";
 import { redis } from "../framework/config/redis";
 import JwtTokenService from "../framework/services/JwtToken";
@@ -132,6 +133,55 @@ class adminUseCase {
         return false;
       }
       return newUser;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async getTutors() {
+    try {
+      const tutors = await this.iAdminRepository.getTutors();
+      if (!tutors) {
+        return false;
+      }
+      return tutors;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async verifyTutor(_id: string) {
+    try {
+      const newTutor = await this.iAdminRepository.verifyTutor(_id);
+      if (!newTutor) {
+        return false;
+      }
+      return newTutor;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async refuteTutor(_id: string) {
+    try {
+      const newTutor = await this.iAdminRepository.refuteTutor(_id);
+      if (!newTutor) {
+        return false;
+      }
+      return newTutor;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async editTutor(tutorData: Tutor) {
+    try {
+      const newTutor = await this.iAdminRepository.editTutor(tutorData);
+      if (!newTutor) {
+        return false;
+      }
+      // console.log("newUser :", newUser);
+
+      return newTutor;
     } catch (error) {
       console.log(error);
       return false;

@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "../routes/userRoutes";
 import adminRouter from "../routes/adminRoutes";
+import tutorRouter from "../routes/tutorRoutes";
 require("dotenv").config();
 
 export const createServer = () => {
@@ -19,6 +20,7 @@ export const createServer = () => {
     );
     app.use("/api/v1", userRouter);
     app.use("/api/v1", adminRouter);
+    app.use("/api/v1", tutorRouter);
     return app;
   } catch (error) {
     console.log("error");

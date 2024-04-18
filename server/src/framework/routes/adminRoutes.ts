@@ -40,5 +40,17 @@ adminRouter.post("/admin/blockUser", isAuthorized, (req, res, next) => {
 adminRouter.post("/admin/unBlockUser", isAuthorized, (req, res, next) => {
   controller.unBlockUser(req, res, next);
 });
+adminRouter.get("/admin/getTutors", isAuthorized, (req, res, next) => {
+  controller.getTutors(req, res, next);
+});
+adminRouter.post("/admin/verifyTutor", isAuthorized, (req, res, next) => {
+  controller.verifyTutor(req, res, next);
+});
+adminRouter.post("/admin/refuteTutor", isAuthorized, (req, res, next) => {
+  controller.refuteTutor(req, res, next);
+});
+adminRouter.post("/admin/editTutor", isAuthorized, (req, res, next) => {
+  controller.editTutor(req, res, next);
+});
 
 export default adminRouter;

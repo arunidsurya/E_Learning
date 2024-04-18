@@ -37,7 +37,6 @@ userRouter.post("/user/forgot_password_confirm", (req, res, next) => {
 userRouter.put("/user/update_user_info", (req, res, next) => {
   controller.upadteUserInfo(req, res, next);
 });
-
 userRouter.put("/user/update_user_password", (req, res, next) => {
   controller.upadteUserpassword(req, res, next);
 });

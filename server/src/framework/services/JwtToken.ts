@@ -2,12 +2,26 @@ import Jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import IjwtToken from "../../usecase/interface/IjwtToken";
 import User from "../../entities/userEntity";
 import Admin from "../../entities/adminEntity";
+import Tutor from "../../entities/tutorEntity";
 
 class JwtTokenService implements IjwtToken {
   async SignJwt(user: User): Promise<string> {
     const token = Jwt.sign(
       {
         user,
+      },
+      process.env.ACTIVATION_SECRET as Secret,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    return token;
+  }
+  async SignTutorJwt(tutor: Tutor): Promise<string> {
+    const token = Jwt.sign(
+      {
+        tutor,
       },
       process.env.ACTIVATION_SECRET as Secret,
       {

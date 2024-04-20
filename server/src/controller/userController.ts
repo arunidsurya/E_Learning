@@ -175,6 +175,27 @@ class userController {
         .json({ success: false, message: "Internal server error." });
     }
   }
+  async googleLogin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { name, email, avatar } = req.body;
+
+      const data = await this.userCase.googleAuth(name, email, avatar);
+      // console.log("data :", data);
+
+      if (data?.success) {
+        res.cookie("access_token", data.token);
+
+        res.status(201).json({ data });
+      } else {
+        res.json({ data });
+      }
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "An error occurred",
+      });
+    }
+  }
 }
 
 export default userController;

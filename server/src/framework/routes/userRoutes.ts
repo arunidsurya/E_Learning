@@ -40,5 +40,8 @@ userRouter.put("/user/update_user_info", (req, res, next) => {
 userRouter.put("/user/update_user_password", (req, res, next) => {
   controller.upadteUserpassword(req, res, next);
 });
+userRouter.post("/user/google_signin", (req, res, next) => {
+  controller.googleLogin(req, res, next);
+});
 
 export default userRouter;

@@ -11,8 +11,7 @@ export interface IUser extends Document {
   gender: string;
   password: string;
   avatar: {
-    public_id: string;
-    url: string;
+    type: string;
   };
   isVerified: boolean;
   isBlocked: boolean;
@@ -48,8 +47,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       select: false,
     },
     avatar: {
-      public_id: String,
-      url: String,
+      type: String,
     },
     isVerified: {
       type: Boolean,

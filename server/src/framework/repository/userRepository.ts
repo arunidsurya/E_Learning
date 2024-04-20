@@ -127,6 +127,51 @@ class userRepository implements IUserRepository {
       return null;
     }
   }
+  async googleLogin(user: User): Promise<string | null> {
+    try {
+      const token = await this.JwtToken.SignJwt(user);
+      redis.set(user.email, JSON.stringify(user) as any);
+      // console.log(token);
+      return token;
+    } catch (error) {
+      return null;
+    }
+  }
+  async googleSignup(
+    name: string,
+    email: string,
+    avatar: string
+  ): Promise<{ savedUser: User; token: string } | null> {
+    try {
+      console.log(name, email, avatar);
+
+      // Check if name and email are provided
+      if (!name || !email) {
+        throw new Error("Name and email are required");
+      }
+
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const savedUser = await userModel.create({
+        name,
+        email,
+        gender: "not specified",
+        avatar,
+        password: generatedPassword,
+        isVerified: true,
+      });
+
+      const token = await this.JwtToken.SignJwt(savedUser);
+      redis.set(savedUser.email, JSON.stringify(savedUser) as any);
+
+      return { token, savedUser };
+      return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 }
 
 export default userRepository;

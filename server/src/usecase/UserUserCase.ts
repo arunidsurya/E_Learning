@@ -262,6 +262,42 @@ class userUserCase {
       console.log(error);
     }
   }
+  async googleAuth(name: string, email: string, avatar: string) {
+    try {
+      const isEmailExist = await this.iUserRepository.findByEmail(email);
+      if (isEmailExist) {
+        const token = await this.iUserRepository.googleLogin(isEmailExist);
+        return {
+          status: 201,
+          success: true,
+          user: isEmailExist,
+          token,
+        };
+      }
+
+      const savedUserDetails = await this.iUserRepository.googleSignup(
+        name,
+        email,
+        avatar
+      );
+      if (savedUserDetails) {
+        return {
+          status: 201,
+          success: true,
+          user: savedUserDetails.savedUser,
+          token: savedUserDetails.token,
+        };
+      } else {
+        return {
+          status: 500,
+          success: false,
+          message: "Login failed, Please try again later",
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default userUserCase;

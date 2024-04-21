@@ -31,7 +31,7 @@ adminRouter.get("/admin/getUsers", isAuthorized, (req, res, next) => {
 adminRouter.post("/admin/addUser", isAuthorized, (req, res, next) => {
   controller.addUser(req, res, next);
 });
-adminRouter.post("/admin/editUser", isAuthorized, (req, res, next) => {
+adminRouter.put("/admin/editUser", isAuthorized, (req, res, next) => {
   controller.editUser(req, res, next);
 });
 adminRouter.post("/admin/blockUser", isAuthorized, (req, res, next) => {
@@ -49,7 +49,7 @@ adminRouter.post("/admin/verifyTutor", isAuthorized, (req, res, next) => {
 adminRouter.post("/admin/refuteTutor", isAuthorized, (req, res, next) => {
   controller.refuteTutor(req, res, next);
 });
-adminRouter.post("/admin/editTutor", isAuthorized, (req, res, next) => {
+adminRouter.put("/admin/editTutor", isAuthorized, (req, res, next) => {
   controller.editTutor(req, res, next);
 });
 

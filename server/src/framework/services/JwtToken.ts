@@ -12,10 +12,22 @@ class JwtTokenService implements IjwtToken {
       },
       process.env.ACTIVATION_SECRET as Secret,
       {
-        expiresIn: "1d",
+        expiresIn: "5m",
       }
     );
 
+    return token;
+  }
+  async refreshToken(user: User): Promise<string> {
+    const token = Jwt.sign(
+      {
+        user,
+      },
+      process.env.REFRESH_TOKEN as Secret,
+      {
+        expiresIn: "1d",
+      }
+    );
     return token;
   }
   async SignTutorJwt(tutor: Tutor): Promise<string> {

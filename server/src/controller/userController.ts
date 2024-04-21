@@ -45,7 +45,10 @@ class userController {
       // console.log("data :", data);
 
       if (data?.success) {
-        res.cookie("access_token", data.token);
+        res.cookie("access_token", data.access_token);
+        res.cookie("refresh_token", data.refresh_token);
+        // console.log("access_token:", data.access_token);
+        // console.log("refresh_Token", data.refreshToken);
 
         res.status(201).json({ data });
       } else {
@@ -61,6 +64,7 @@ class userController {
   async logoutUser(req: Request, res: Response, next: NextFunction) {
     try {
       res.cookie("access_token", "", { maxAge: 1 });
+      res.cookie("refresh_token", "", { maxAge: 1 });
       const email = req.user?.email || "";
       redis.del(email);
       res.status(200).json({
@@ -115,6 +119,7 @@ class userController {
   }
   async upadteUserInfo(req: Request, res: Response, next: NextFunction) {
     const userData = req.body;
+
     try {
       const user = await this.userCase.updateUserInfo(userData);
       if (!user) {
@@ -180,10 +185,10 @@ class userController {
       const { name, email, avatar } = req.body;
 
       const data = await this.userCase.googleAuth(name, email, avatar);
-      // console.log("data :", data);
 
       if (data?.success) {
-        res.cookie("access_token", data.token);
+        res.cookie("access_token", data.access_token);
+        res.cookie("refresh_token", data.refresh_token);
 
         res.status(201).json({ data });
       } else {

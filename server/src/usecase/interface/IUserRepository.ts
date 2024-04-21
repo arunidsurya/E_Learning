@@ -8,7 +8,7 @@ interface IUserRepository {
     user: User,
     email: string,
     password: string
-  ): Promise<string | null>;
+  ): Promise<{ access_token: string; refresh_token: string } | null>;
   forgotPasswordConfirm(
     email: string,
     newPassword: string
@@ -19,12 +19,18 @@ interface IUserRepository {
     newPassword: string,
     email: string
   ): Promise<User | null>;
-  googleLogin(user: User): Promise<string | null>;
+  googleLogin(
+    user: User
+  ): Promise<{ access_token: string; refresh_token: string } | null>;
   googleSignup(
     name: string,
     email: string,
     avatar: string
-  ): Promise<{ savedUser: User; token: string } | null>;
+  ): Promise<{
+    savedUser: User;
+    access_token: string;
+    refresh_token: string;
+  } | null>;
 }
 
 export default IUserRepository;

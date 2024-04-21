@@ -4,7 +4,10 @@ interface User {
   email: string;
   gender: string;
   password: string;
-  avtar?: string;
+  avatar?: {
+    url: string;
+    public_id: string;
+  };
   isVerified: boolean;
   isBlocked: boolean;
   courses: Array<{ courseId: string }>;

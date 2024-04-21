@@ -4,6 +4,7 @@ import IUserRepository from "../../usecase/interface/IUserRepository";
 import { redis } from "../config/redis";
 import userModel from "../database/userModel";
 import JwtTokenService from "../services/JwtToken";
+import cloudinary from "../config/cloudinary";
 
 class userRepository implements IUserRepository {
   JwtToken = new JwtTokenService();
@@ -34,7 +35,7 @@ class userRepository implements IUserRepository {
     user: User,
     email: string,
     password: string
-  ): Promise<string | null> {
+  ): Promise<{ access_token: string; refresh_token: string } | null> {
     try {
       const isPasswordMatch = await user.comparePassword(password);
       // console.log("match:", isPasswordMatch);
@@ -43,10 +44,11 @@ class userRepository implements IUserRepository {
         // Check if password does not match
         return null; // Return null if password does not match
       } else {
-        const token = await this.JwtToken.SignJwt(user);
+        const access_token = await this.JwtToken.SignJwt(user);
+        const refresh_token = await this.JwtToken.refreshToken(user);
         redis.set(user.email, JSON.stringify(user) as any);
         // console.log(token);
-        return token;
+        return { access_token, refresh_token };
       }
     } catch (error) {
       console.error(error);
@@ -81,15 +83,40 @@ class userRepository implements IUserRepository {
   }
   async updateUserinfo(userData: User): Promise<User | null> {
     try {
-      const { _id, name, email } = userData;
+      const { _id, name, email, avatar } = userData;
+
       const user = await userModel.findOne({ _id });
       if (!user) {
         return null;
       }
-      user.name = name;
-      user.email = email;
+      if (avatar && user) {
+        if (user.avatar?.public_id) {
+          await cloudinary.uploader.destroy(user.avatar.public_id);
+          const uploadRes = await cloudinary.uploader.upload(avatar, {
+            upload_preset: "E_Learning",
+            folder: "avatars",
+          });
+          user.name = name;
+          user.email = email;
+          user.avatar = {
+            url: uploadRes.secure_url,
+            public_id: uploadRes.public_id,
+          };
+        } else {
+          const uploadRes = await cloudinary.uploader.upload(avatar, {
+            upload_preset: "E_Learning",
+            folder: "avatars",
+          });
+          user.name = name;
+          user.email = email;
+          user.avatar = {
+            url: uploadRes.secure_url,
+            public_id: uploadRes.public_id,
+          };
+        }
+      }
 
-      user.save();
+      await user.save();
 
       return user;
     } catch (error) {
@@ -112,7 +139,7 @@ class userRepository implements IUserRepository {
         return null;
       }
       const isOldPasswordMatch = await user?.comparePassword(oldPassword);
-      console.log(isOldPasswordMatch);
+      // console.log(isOldPasswordMatch);
 
       if (!isOldPasswordMatch) {
         return null;
@@ -127,12 +154,16 @@ class userRepository implements IUserRepository {
       return null;
     }
   }
-  async googleLogin(user: User): Promise<string | null> {
+  async googleLogin(
+    user: User
+  ): Promise<{ access_token: string; refresh_token: string } | null> {
     try {
-      const token = await this.JwtToken.SignJwt(user);
+      const access_token = await this.JwtToken.SignJwt(user);
+      const refresh_token = await this.JwtToken.refreshToken(user);
+
       redis.set(user.email, JSON.stringify(user) as any);
       // console.log(token);
-      return token;
+      return { access_token, refresh_token };
     } catch (error) {
       return null;
     }
@@ -141,9 +172,13 @@ class userRepository implements IUserRepository {
     name: string,
     email: string,
     avatar: string
-  ): Promise<{ savedUser: User; token: string } | null> {
+  ): Promise<{
+    savedUser: User;
+    access_token: string;
+    refresh_token: string;
+  } | null> {
     try {
-      console.log(name, email, avatar);
+      // console.log(name, email, avatar);
 
       // Check if name and email are provided
       if (!name || !email) {
@@ -153,19 +188,25 @@ class userRepository implements IUserRepository {
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
+      const generatedPublicId = Math.random().toString(36).slice(-8);
       const savedUser = await userModel.create({
         name,
         email,
         gender: "not specified",
-        avatar,
+        avatar: {
+          url: avatar,
+          public_id: generatedPublicId,
+        },
         password: generatedPassword,
         isVerified: true,
       });
 
-      const token = await this.JwtToken.SignJwt(savedUser);
+      const access_token = await this.JwtToken.SignJwt(savedUser);
+      const refresh_token = await this.JwtToken.refreshToken(savedUser);
+
       redis.set(savedUser.email, JSON.stringify(savedUser) as any);
 
-      return { token, savedUser };
+      return { savedUser, access_token, refresh_token };
       return null;
     } catch (error) {
       console.error(error);

@@ -92,6 +92,8 @@ class userUserCase {
     try {
       // console.log(email);
       const user = await this.iUserRepository.findByEmail(email);
+      console.log(user);
+
       if (!user) {
         return {
           status: 500,
@@ -105,15 +107,21 @@ class userUserCase {
           message: "Account suspended!!, please contact Admin",
         };
       }
-      const token = await this.iUserRepository.loginUser(user, email, password);
-      if (!token) {
+      const proToken = await this.iUserRepository.loginUser(
+        user,
+        email,
+        password
+      );
+
+      if (!proToken) {
         return {
           status: 500,
           success: false,
           message: "Invalid email or password!!",
         };
       }
-      return { status: 201, success: true, user, token };
+      const { access_token, refresh_token } = proToken;
+      return { status: 201, success: true, user, access_token, refresh_token };
     } catch (error) {
       console.log(error);
     }
@@ -160,8 +168,8 @@ class userUserCase {
     activationToken: string
   ) {
     try {
-      console.log("code:", activationCode);
-      console.log("token:", activationToken);
+      // console.log("code:", activationCode);
+      // console.log("token:", activationToken);
       const newUser = await this.JwtToken.otpVerifyJwt(
         activationToken,
         activationCode
@@ -265,34 +273,41 @@ class userUserCase {
   async googleAuth(name: string, email: string, avatar: string) {
     try {
       const isEmailExist = await this.iUserRepository.findByEmail(email);
-      if (isEmailExist) {
-        const token = await this.iUserRepository.googleLogin(isEmailExist);
-        return {
-          status: 201,
-          success: true,
-          user: isEmailExist,
-          token,
-        };
-      }
+      // console.log(isEmailExist);
 
-      const savedUserDetails = await this.iUserRepository.googleSignup(
-        name,
-        email,
-        avatar
-      );
-      if (savedUserDetails) {
-        return {
-          status: 201,
-          success: true,
-          user: savedUserDetails.savedUser,
-          token: savedUserDetails.token,
-        };
+      if (isEmailExist) {
+        const proToken = await this.iUserRepository.googleLogin(isEmailExist);
+        if (proToken) {
+          const { access_token, refresh_token } = proToken;
+          return {
+            status: 201,
+            success: true,
+            user: isEmailExist,
+            access_token,
+            refresh_token,
+          };
+        }
       } else {
-        return {
-          status: 500,
-          success: false,
-          message: "Login failed, Please try again later",
-        };
+        const savedUserDetails = await this.iUserRepository.googleSignup(
+          name,
+          email,
+          avatar
+        );
+        if (savedUserDetails) {
+          return {
+            status: 201,
+            success: true,
+            user: savedUserDetails.savedUser,
+            access_token: savedUserDetails.access_token,
+            refresh_toke: savedUserDetails.refresh_token,
+          };
+        } else {
+          return {
+            status: 500,
+            success: false,
+            message: "Login failed, Please try again later",
+          };
+        }
       }
     } catch (error) {
       console.log(error);

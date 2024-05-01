@@ -210,6 +210,110 @@ class adminController {
       console.log(error);
     }
   }
+  async createCategory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const categoryData = req.body;
+      const newCategory = await this.adminCase.createCategory(categoryData);
+
+      if (newCategory === null) {
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error, Please try again later",
+        });
+      }
+      if (newCategory === false) {
+        return res.status(409).json({
+          success: false,
+          message: "The category name already exists!!",
+        });
+      }
+      return res.status(201).json({
+        success: true,
+        message: "New Category created successfully!!",
+        newCategory,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error, Please try again later",
+      });
+    }
+  }
+  async editCategory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const categoryData = req.body;
+      const updatedCategory = await this.adminCase.editCategory(categoryData);
+
+      if (updatedCategory === null) {
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error, Please try again later",
+        });
+      }
+      if (updatedCategory === false) {
+        return res.status(400).json({
+          success: false,
+          message: "The category not found!!",
+        });
+      }
+      return res.status(201).json({
+        success: true,
+        message: "Category updated successfully!!",
+        updatedCategory,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error, Please try again later",
+      });
+    }
+  }
+  async deleteCategory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const _id = req.params.id;
+      const result = await this.adminCase.deleteCategory(_id);
+      if (result === false) {
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error, Please try again later",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: "Category deleted successfully!!",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error, Please try again later",
+      });
+    }
+  }
+  async getCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+      const categories = await this.adminCase.getCategories();
+      if (categories === null) {
+        return res.status(404).json({
+          success: false,
+          message: "No categories available",
+        });
+      }
+      if (categories === false) {
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error, Please try again later",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: "Category deleted successfully!!",
+        categories,
+      });
+    } catch (error) {}
+  }
 }
 
 export default adminController;

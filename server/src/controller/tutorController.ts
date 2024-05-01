@@ -41,13 +41,121 @@ class tutorController {
   }
   async logoutTutor(req: Request, res: Response, next: NextFunction) {
     try {
+      const email = req.tutor?.email || "";
+      console.log("tutor-email:", email);
+
+      redis.del(`tutor-${email}`);
       res.cookie("tutor_token", "", { maxAge: 1 });
+
       res.status(200).json({
         success: true,
         message: "Logged out successfully",
       });
     } catch (error: any) {
       console.log(error);
+    }
+  }
+  async createCourse(req: Request, res: Response, next: NextFunction) {
+    console.log("calling controller");
+
+    try {
+      const { data } = req.body;
+      const courseStatus = await this.tutorCase.createCourse(data);
+      if (courseStatus === null) {
+        return res.status(500).json({
+          success: false,
+          messge: "Course creation unsuccessfull",
+        });
+      }
+      return res.status(201).json({
+        success: true,
+        message: "Course added suucessfully",
+        courseStatus,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async editCourse(req: Request, res: Response, next: NextFunction) {
+    console.log("calling controller");
+
+    try {
+      const { data } = req.body;
+      const courseStatus = await this.tutorCase.editCourse(data);
+      if (courseStatus === null) {
+        return res.status(500).json({
+          success: false,
+          messge: "Course creation unsuccessfull",
+        });
+      }
+      return res.status(201).json({
+        success: true,
+        message: "Course added suucessfully",
+        courseStatus,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+      const categories = await this.tutorCase.getCategories();
+      if (categories === null) {
+        return res.status(404).json({
+          success: false,
+          message: "No categories available",
+        });
+      }
+      if (categories === false) {
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error, Please try again later",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: "Category deleted successfully!!",
+        categories,
+      });
+    } catch (error) {}
+  }
+
+  async getAllCourses(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    try {
+      const courses = await this.tutorCase.getAllCourses(id);
+      if (courses === null) {
+        return res.json({
+          success: false,
+          message: "No courses found",
+        });
+      }
+      res.json({ courses, success: true });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async deleteCourse(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req.params;
+      const result = await this.tutorCase.deleteCourse(_id);
+      if (result === false) {
+        return res.status(404).json({
+          sucess: false,
+          message: "delete operation failed",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: "Course Deleted successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        sucess: false,
+        message: "internal server error!! please try again later",
+      });
     }
   }
 }

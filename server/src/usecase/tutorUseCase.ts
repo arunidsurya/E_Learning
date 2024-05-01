@@ -1,8 +1,10 @@
+import Course from "../entities/course";
 import Tutor from "../entities/tutorEntity";
 import { redis } from "../framework/config/redis";
 import JwtTokenService from "../framework/services/JwtToken";
 import sendMail from "../framework/services/SendMail";
 import ITutorRepository from "./interface/ITutorRepository";
+import ICourse from "./interface/Icourse";
 
 class tutorUseCase {
   private iTutorRepository: ITutorRepository;
@@ -86,6 +88,63 @@ class tutorUseCase {
       };
     } catch (error) {
       console.log(error);
+    }
+  }
+  async createCourse(data: Course) {
+    try {
+      const savedCourse = await this.iTutorRepository.createCourse(data);
+      if (savedCourse) {
+        return savedCourse;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async editCourse(data: Course) {
+    try {
+      const savedCourse = await this.iTutorRepository.editCourse(data);
+      if (savedCourse) {
+        return savedCourse;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async getAllCourses(id: string) {
+    try {
+      console.log("call1");
+
+      const courses = await this.iTutorRepository.getAllCourses(id);
+
+      if (courses === null) {
+        return null;
+      } else {
+        return {
+          courses,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getCategories() {
+    try {
+      const categories = await this.iTutorRepository.getCategories();
+      return categories;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async deleteCourse(_id: string) {
+    try {
+      const result = await this.iTutorRepository.deleteCourse(_id);
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 }

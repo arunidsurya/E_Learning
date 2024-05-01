@@ -1,3 +1,4 @@
+import Category from "../entities/Categories";
 import Admin from "../entities/adminEntity";
 import Tutor from "../entities/tutorEntity";
 import User from "../entities/userEntity";
@@ -182,6 +183,54 @@ class adminUseCase {
       // console.log("newUser :", newUser);
 
       return newTutor;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async createCategory(categoryData: Category) {
+    try {
+      const result = await this.iAdminRepository.createCategory(categoryData);
+      if (result === false) {
+        return false;
+      }
+      if (result === null) {
+        return result;
+      }
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async editCategory(categoryData: Category) {
+    try {
+      const result = await this.iAdminRepository.editCategory(categoryData);
+      if (result === false) {
+        return false;
+      }
+      if (result === null) {
+        return result;
+      }
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async deleteCategory(_id: string) {
+    try {
+      const result = await this.iAdminRepository.deleteCategory(_id);
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async getCategories() {
+    try {
+      const categories = await this.iAdminRepository.getCategories();
+      return categories;
     } catch (error) {
       console.log(error);
       return false;

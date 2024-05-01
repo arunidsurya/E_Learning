@@ -1,10 +1,15 @@
+import { Document } from "mongoose";
+import Category from "../../entities/Categories";
 import Admin from "../../entities/adminEntity";
 import Tutor from "../../entities/tutorEntity";
 import User from "../../entities/userEntity";
 import IAdminRepository from "../../usecase/interface/IAdminRepository";
+import CategoryModel from "../database/CategoryModel";
 import adminModel from "../database/adminModel";
 import tutorModel from "../database/tutorModel";
 import userModel from "../database/userModel";
+import CourseModel from "../database/CourseModel";
+import Course from "../../entities/course";
 
 class adminRepositoty implements IAdminRepository {
   async findByEmail(email: string): Promise<Admin | null> {
@@ -189,6 +194,95 @@ class adminRepositoty implements IAdminRepository {
       // console.log("newUser :", user);
 
       return tutor;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async createCategory(
+    categoryData: Category
+  ): Promise<Category | null | boolean> {
+    try {
+      const isExist = await CategoryModel.find({
+        name: { $regex: new RegExp(categoryData.name.toString(), "i") },
+      });
+
+      // console.log("isExist:", isExist);
+      if (isExist.length !== 0) {
+        return false;
+      }
+      const newCategory = await CategoryModel.create(categoryData);
+      // console.log("newCategory:", newCategory);
+
+      if (!newCategory) {
+        return null;
+      }
+      return newCategory;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async editCategory(
+    categoryData: Category
+  ): Promise<Category | null | boolean> {
+    try {
+      const { _id, name, description } = categoryData;
+      const category = await CategoryModel.findById(_id);
+
+      if (!category) {
+        return false; // Category not found
+      }
+
+      // Update fields other than _id
+      category.name = name;
+      category.description = description;
+
+      await category.save();
+
+      return category; // Return the updated category
+      return null;
+    } catch (error) {
+      console.log(error);
+      return null; // Return null if an error occurs
+    }
+  }
+  async deleteCategory(_id: string): Promise<boolean> {
+    try {
+      const result = await CategoryModel.deleteOne({ _id });
+      if (result.deletedCount === 0) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  async getCategories(): Promise<Category[] | null | boolean> {
+    try {
+      const categories = await CategoryModel.find();
+      if (categories.length === 0) {
+        return null;
+      }
+      return categories;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async getAllCourses(): Promise<Document<any, any, Course>[] | null> {
+    try {
+      const courses = await CourseModel.find()
+        .populate("courseData")
+        .sort({ createdAt: -1 })
+        .exec();
+      if (courses) {
+        return courses;
+      } else {
+        return null;
+      }
     } catch (error) {
       console.log(error);
       return null;

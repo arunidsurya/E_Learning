@@ -1,4 +1,7 @@
+import { Document } from "mongoose";
+import Category from "../../entities/Categories";
 import Admin from "../../entities/adminEntity";
+import Course from "../../entities/course";
 import Tutor from "../../entities/tutorEntity";
 import User from "../../entities/userEntity";
 
@@ -14,11 +17,11 @@ interface IAdminRepository {
   verifyTutor(_id: string): Promise<Tutor | null>;
   refuteTutor(_id: string): Promise<Tutor | null>;
   editTutor(tutorData: Tutor): Promise<Tutor | null>;
-  //   loginUser(
-  //     admin: Admin,
-  //     email: string,
-  //     password: string
-  //   ): Promise<string | null>;
+  createCategory(categoryData: Category): Promise<Category | null | boolean>;
+  editCategory(categoryData: Category): Promise<Category | null | boolean>;
+  deleteCategory(_id: string): Promise<boolean>;
+  getCategories(): Promise<Category[] | null | boolean>;
+  getAllCourses(): Promise<Document<any, any, Course>[] | null>;
 }
 
 export default IAdminRepository;

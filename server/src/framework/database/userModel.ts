@@ -16,7 +16,9 @@ export interface IUser extends Document {
   };
   isVerified: boolean;
   isBlocked: boolean;
-  courses: Array<{ courseId: string }>;
+  courses: string[];
+  premiumAccount:boolean;
+  premiumCourses:number;
   comparePassword: (password: string) => Promise<boolean>;
   SignAccessToken: () => string;
   SignRefreshToken: () => string;
@@ -59,11 +61,15 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    courses: [
-      {
-        courseId: String,
-      },
-    ],
+    courses: [String],
+    premiumAccount:{
+      type:Boolean,
+      default:false,
+    },
+    premiumCourses:{
+      type:Number,
+      default:0
+    }
   },
   { timestamps: true }
 );

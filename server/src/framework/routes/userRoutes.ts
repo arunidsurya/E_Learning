@@ -43,5 +43,38 @@ userRouter.put("/user/update_user_password", (req, res, next) => {
 userRouter.post("/user/google_signin", (req, res, next) => {
   controller.googleLogin(req, res, next);
 });
+userRouter.get("/user/courses", (req, res, next) => {
+  controller.getAllCourses(req, res, next);
+});
+userRouter.get("/user/getCourse/:_id", (req, res, next) => {
+  controller.getCourse(req, res, next);
+});
+userRouter.get("/user/getCourseContent/:_id", isAuthenticated,(req, res, next) => {
+  controller.getCourseContent(req, res, next);
+});
+userRouter.post("/user/create-order", isAuthenticated,(req, res, next) => {
+  controller.createOrder(req, res, next);
+});
+
+userRouter.get("/user/stripepublishablekey", (req, res, next) => {
+  controller.sendStripePulishKey(req, res, next);
+});
+
+userRouter.post("/user/payment", isAuthenticated, (req, res, next) => {
+  controller.newPayment(req, res, next);
+});
+
+userRouter.put("/user/add-question",isAuthenticated, (req, res, next) => {
+  controller.addQuestion(req, res, next);
+});
+
+userRouter.put("/user/add-answer", isAuthenticated, (req, res, next) => {
+  controller.replyToQestion(req, res, next);
+});
+
+userRouter.put("/user/add-review/:id", isAuthenticated, (req, res, next) => {
+  controller.addReview(req, res, next);
+});
+
 
 export default userRouter;

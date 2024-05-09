@@ -1,4 +1,4 @@
-import { Document, set } from "mongoose";
+import mongoose, { Document, set } from "mongoose";
 import User from "../../entities/userEntity";
 import ITutorRepository from "../../usecase/interface/ITutorRepository";
 import { redis } from "../config/redis";
@@ -6,7 +6,6 @@ import userModel from "../database/userModel";
 import JwtTokenService from "../services/JwtToken";
 import Tutor from "../../entities/tutorEntity";
 import tutorModel from "../database/tutorModel";
-import ICourse from "../../usecase/interface/Icourse";
 import CourseModel from "../database/CourseModel";
 import Category from "../../entities/Categories";
 import CategoryModel from "../database/CategoryModel";
@@ -82,9 +81,7 @@ class tutorRepository implements ITutorRepository {
       return null;
     }
   }
-  async createCourse(
-    data: Course
-  ): Promise<Document<any, any, ICourse> | null> {
+  async createCourse(data: Course): Promise<Document<any, any, Course> | null> {
     try {
       // console.log(data);
 
@@ -148,9 +145,9 @@ class tutorRepository implements ITutorRepository {
     id: string
   ): Promise<Document<any, any, Course>[] | null> {
     console.log(id);
-    
+
     try {
-      const courses = await CourseModel.find({instructorId:id})
+      const courses = await CourseModel.find({ instructorId: id })
         .populate("courseData")
         .sort({ createdAt: -1 })
         .exec();
@@ -209,7 +206,7 @@ class tutorRepository implements ITutorRepository {
       return false; // Error occurred during deletion
     }
   }
-  async editCourse(data: Course): Promise<Document<any, any, ICourse> | null> {
+  async editCourse(data: Course): Promise<Document<any, any, Course> | null> {
     try {
       // Extract data from the input
       const {
@@ -268,6 +265,79 @@ class tutorRepository implements ITutorRepository {
     } catch (error) {
       console.log(error);
       return null;
+    }
+  }
+  async replyToQuestion(
+    tutor:any,
+    answer: string,
+    courseId: string,
+    contentId: string,
+    questionId: string
+  ): Promise<boolean | null> {
+    try {
+      const course = await CourseModel.findById(courseId);
+
+      if (!mongoose.Types.ObjectId.isValid(contentId)) {
+        console.log("invalid contentId");
+        return false;
+      }
+      const courseContent = course?.courseData?.find((item: any) =>
+        item._id.equals(contentId)
+      );
+
+      if (!courseContent) {
+        return false;
+      }
+      const courseContentData = await CourseDataModel.findById(contentId);
+      if (!courseContentData) {
+        return false;
+      }
+      const question = courseContentData?.questions?.find((item: any) =>
+        item._id.equals(questionId)
+      );
+      if(!question){
+        return false
+      }
+
+      const newAnswer:any={
+          tutor,
+          answer
+      }
+      question.questionReplies.push(newAnswer);
+      await courseContentData.save();
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async replyToReview(tutor:any,comment: string, courseId: string, reviewId: string): Promise<boolean | null> {
+    try {
+      const course = await CourseModel.findById(courseId);
+
+      if(!course){
+        return false
+      }
+      const review = course?.reviews?.find((rev:any)=>rev._id.toString() === reviewId);
+      if(!review){
+        return false
+      }
+
+      const replyData:any={
+        tutor,
+        comment
+      };
+
+      review?.commentReplies?.push(replyData);
+
+      await course.save();
+
+      return true;
+
+    } catch (error) {
+      console.log(error);
+      return false
     }
   }
 }

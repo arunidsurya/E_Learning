@@ -4,7 +4,6 @@ import { redis } from "../framework/config/redis";
 import JwtTokenService from "../framework/services/JwtToken";
 import sendMail from "../framework/services/SendMail";
 import ITutorRepository from "./interface/ITutorRepository";
-import ICourse from "./interface/Icourse";
 
 class tutorUseCase {
   private iTutorRepository: ITutorRepository;
@@ -147,6 +146,26 @@ class tutorUseCase {
       return false;
     }
   }
+  async replyToQuestion(tutor:any,answer:string,courseId:string,contentId:string,questionId:string){
+    try {
+      const result = await this.iTutorRepository.replyToQuestion(tutor,answer,courseId,contentId,questionId);
+      return result
+    } catch (error) {
+      console.log(error);
+      return false  
+    }
+  }
+
+    async replyToReview(tutor:any,comment: string, courseId: string, reviewId: string){
+    try {
+      const result = await this.iTutorRepository.replyToReview(tutor,comment, courseId, reviewId);
+      return result
+    } catch (error) {
+      console.log(error);
+      return false  
+    }
+  }
+    
 }
 
 export default tutorUseCase;

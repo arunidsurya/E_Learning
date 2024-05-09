@@ -313,6 +313,113 @@ class userUserCase {
       console.log(error);
     }
   }
+  async getAllCourses() {
+    try {
+      const courses = await this.iUserRepository.getAllCourses();
+
+      if (courses === null) {
+        return null;
+      } else {
+        return {
+          courses,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getCourse(_id: string) {
+    try {
+      const course = await this.iUserRepository.getCourse(_id);
+
+      if (course === null) {
+        return null;
+      } else {
+        return {
+          course,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getCourseContent(_id: string) {
+    try {
+      const course = await this.iUserRepository.getCourseContent(_id);
+
+      if (course === null) {
+        return null;
+      } else {
+        return {
+          course,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async createOrder(userId: string, courseId: string, payment_info: object) {
+    try {
+      const result = this.iUserRepository.createOrder(
+        userId,
+        courseId,
+        payment_info
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async addQuestion(
+    user: any,
+    question: string,
+    courseId: string,
+    contentId: string
+  ) {
+    try {
+      const result = await this.iUserRepository.addQuestion(
+        user,
+        question,
+        courseId,
+        contentId
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async replyToQuestion(
+    user: any,
+    answer: string,
+    courseId: string,
+    contentId: string,
+    questionId: string
+  ) {
+    try {
+      const result = await this.iUserRepository.replyToQuestion(
+        user,
+        answer,
+        courseId,
+        contentId,
+        questionId
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async addReview(userEmail: any, userId: string, courseId:string, review: string, rating: number){
+    try {
+      const result = this.iUserRepository.addReview(userEmail,userId,courseId,review,rating);
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false
+    }
+  }
+
 }
 
 export default userUserCase;

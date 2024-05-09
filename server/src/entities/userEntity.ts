@@ -10,7 +10,9 @@ interface User {
   };
   isVerified: boolean;
   isBlocked: boolean;
-  courses: Array<{ courseId: string }>;
+  courses: string[];
+  premiumAccount: boolean;
+  premiumCourses: number;
   comparePassword: (password: string) => Promise<boolean>;
 }
 

@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import userUserCase from "../usecase/UserUserCase";
 import { redis } from "../framework/config/redis";
+import userModel from "../framework/database/userModel";
+import Order from "../entities/oder";
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 class userController {
   private userCase: userUserCase;
@@ -66,7 +69,7 @@ class userController {
       res.cookie("access_token", "", { maxAge: 1 });
       res.cookie("refresh_token", "", { maxAge: 1 });
       const email = req.user?.email || "";
-      redis.del(email);
+      redis.del(`user-${email}`);
       res.status(200).json({
         success: true,
         message: "Logged out successfully",
@@ -132,27 +135,7 @@ class userController {
       console.log(error);
     }
   }
-  //   async upadteUserpassword(req: Request, res: Response, next: NextFunction) {
-  //     try {
-  //       const { oldPassword, newPassword, email } = req.body;
-  //       const user = await this.userCase.upadteUserpassword(
-  //         oldPassword,
-  //         newPassword,
-  //         email
-  //       );
-  //       console.log("controller :", user);
 
-  //       if (user == null) {
-  //         return res
-  //           .status(400)
-  //           .json({ success: false, message: "No file uploaded" });
-  //       }
-  //       res.json({ status: 201, success: true, user });
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  // }
   async upadteUserpassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { oldPassword, newPassword, email } = req.body;
@@ -199,6 +182,222 @@ class userController {
         success: false,
         message: "An error occurred",
       });
+    }
+  }
+  async getAllCourses(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this.userCase.getAllCourses();
+      if (result === null) {
+        return res.json({
+          success: false,
+          message: "No courses found",
+        });
+      }
+      res.json({ result, success: true });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getCourse(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req.params;
+      const result = await this.userCase.getCourse(_id);
+      if (result === null) {
+        return res.json({
+          success: false,
+          message: "No courses found",
+        });
+      }
+      res.json({ result, success: true });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getCourseContent(req: Request, res: Response, next: NextFunction) {
+    try {
+      const email = req.user?.email;
+      console.log(email);
+      const { _id } = req.params;
+      const result = await this.userCase.getCourseContent(_id);
+      if (result === null) {
+        return res.json({
+          success: false,
+          message: "No courses found",
+        });
+      }
+      res.json({ result, success: true });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async createOrder(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { courseId, payment_info } = req.body as Order;
+
+      const userId = req.user?._id;
+      if (!userId) {
+        return res.json({
+          success: false,
+          message: "Pleae Login to access this functionality",
+        });
+      }
+
+      if (payment_info) {
+        if ("id" in payment_info) {
+          const paymentIntentId = payment_info.id;
+          const paymentIntent = await stripe.paymentIntents.retrieve(
+            paymentIntentId
+          );
+          if (paymentIntent.status !== "succeeded") {
+            return res.json({
+              success: false,
+              message: "Payment not authorized!",
+            });
+          }
+        }
+      }
+      const result = await this.userCase.createOrder(
+        userId,
+        courseId,
+        payment_info
+      );
+
+      if (result === null) {
+        return res.json({
+          success: false,
+          message: "you have already Purchased this course ",
+        });
+      }
+      if (result === false) {
+        return res.json({
+          success: false,
+          message: "No course found !!",
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: "order created successfully",
+        result,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async sendStripePulishKey(req: Request, res: Response, next: NextFunction) {
+    res.status(200).json({
+      publishablekey: process.env.STRIPE_PUBLISHABLE_KEY,
+    });
+  }
+
+  async newPayment(req: Request, res: Response, next: NextFunction) {
+    const user = req.user;
+    try {
+      // Create the payment intent with shipping information
+      const myPayment = await stripe.paymentIntents.create({
+        amount: req.body.amount,
+        currency: "usd",
+        metadata: {
+          company: "E-Learning",
+        },
+        description: "Payment for E-Learning Course",
+        // customer: customer.id, // Assign the created customer to the payment intent
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.status(201).json({
+        success: true,
+        client_secret: myPayment.client_secret,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ success: false, error: "Internal server error" });
+    }
+  }
+  async addQuestion(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user;
+      if (user) {
+        const { question, courseId, contentId } = req.body;
+
+        const result = await this.userCase.addQuestion(
+          user,
+          question,
+          courseId,
+          contentId
+        );
+        if (result === false) {
+          return res.json({
+            success: false,
+            message: "invalid content Id",
+          });
+        }
+        return res.json({
+          success: true,
+          message: "Question added successfully",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async replyToQestion(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user;
+      if (user) {
+        const { answer, courseId, contentId, questionId } = req.body;
+
+        const result = await this.userCase.replyToQuestion(
+          user,
+          answer,
+          courseId,
+          contentId,
+          questionId
+        );
+        if (result === false) {
+          return res.json({
+            success: false,
+            message: "Internal server error.Please try again later",
+          });
+        }
+        return res.status(201).json({
+          success: true,
+          mesage: "Reply added successfully",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async addReview(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { review, rating, userId } = req.body;
+      const courseId = req.params.id;
+      const userEmail = req.user?.email || null;
+      const result = await this.userCase.addReview(
+        userEmail,
+        userId,
+        courseId,
+        review,
+        rating
+      );
+      if (result === false) {
+        return res.json({
+          success: false,
+          message: "invalid content Id",
+        });
+      }
+      return res.json({
+        success: true,
+        message: "Review added successfully",
+        result,
+      });
+    } catch (error) {
+      console.log(error);
     }
   }
 }

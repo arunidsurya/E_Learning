@@ -39,6 +39,16 @@ tutorRouter.get("/tutor/categories",isTutuorAuthorized, (req, res, next) => {
 tutorRouter.delete("/tutor/delete_course/:_id", isTutuorAuthorized,(req, res, next) => {
   controller.deleteCourse(req, res, next);
 });
+tutorRouter.delete("/tutor/delete_course/:_id", isTutuorAuthorized,(req, res, next) => {
+  controller.deleteCourse(req, res, next);
+});
+tutorRouter.put( "/tutor/reply-question",isTutuorAuthorized,(req, res, next) => {
+    controller.replyToQestion(req, res, next);
+  });
+tutorRouter.put( "/tutor/reply-review",isTutuorAuthorized,(req, res, next) => {
+    controller.replyToReview(req, res, next);
+  });
+
 
 
 export default tutorRouter;

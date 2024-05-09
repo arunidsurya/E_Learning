@@ -58,15 +58,17 @@ adminRouter.post("/admin/create_category", isAuthorized, (req, res, next) => {
 adminRouter.put("/admin/edit_category", isAuthorized, (req, res, next) => {
   controller.editCategory(req, res, next);
 });
-adminRouter.delete(
-  "/admin/delete_category/:id",
-  isAuthorized,
-  (req, res, next) => {
+adminRouter.delete("/admin/delete_category/:id",isAuthorized,(req, res, next) => {
     controller.deleteCategory(req, res, next);
-  }
-);
+  });
 adminRouter.get("/admin/get_categories", isAuthorized, (req, res, next) => {
   controller.getCategories(req, res, next);
 });
+adminRouter.get("/admin/courses", isAuthorized, (req, res, next) => {
+  controller.getAllCourses(req, res, next);
+});
+adminRouter.put("/admin/change_courses_status",isAuthorized,(req, res, next) => {
+    controller.changeCourseStatus(req, res, next);
+  });
 
 export default adminRouter;

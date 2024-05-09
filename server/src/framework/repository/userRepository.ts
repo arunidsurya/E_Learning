@@ -1,10 +1,17 @@
-import { set } from "mongoose";
+import mongoose, { set } from "mongoose";
 import User from "../../entities/userEntity";
 import IUserRepository from "../../usecase/interface/IUserRepository";
 import { redis } from "../config/redis";
 import userModel from "../database/userModel";
 import JwtTokenService from "../services/JwtToken";
 import cloudinary from "../config/cloudinary";
+import { Document } from "mongoose";
+import CourseModel, { IComment } from "../database/CourseModel";
+import Course from "../../entities/course";
+import OrderModel from "../database/orderModel";
+import Order from "../../entities/oder";
+import NotificationModel from "../database/notificationModel";
+import CourseDataModel from "../database/courseData";
 
 class userRepository implements IUserRepository {
   JwtToken = new JwtTokenService();
@@ -46,7 +53,7 @@ class userRepository implements IUserRepository {
       } else {
         const access_token = await this.JwtToken.SignJwt(user);
         const refresh_token = await this.JwtToken.refreshToken(user);
-        redis.set(user.email, JSON.stringify(user) as any);
+        redis.set(`user-${user.email}`, JSON.stringify(user) as any);
         // console.log(token);
         return { access_token, refresh_token };
       }
@@ -211,6 +218,248 @@ class userRepository implements IUserRepository {
     } catch (error) {
       console.error(error);
       return null;
+    }
+  }
+  async getAllCourses(): Promise<Document<any, any, Course>[] | null> {
+    try {
+      const courses = await CourseModel.find({ approved: true })
+        .sort({ createdAt: -1 })
+        .exec();
+      if (courses) {
+        return courses;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async getCourse(_id: string): Promise<Course | null> {
+    try {
+      // console.log(_id);
+
+      const course = await CourseModel.findById(_id)
+      if (course) {
+        return course;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async getCourseContent(_id: string): Promise<Course | null> {
+    try {
+      // console.log(_id);
+
+      const course = await CourseModel.findById(_id)
+        .populate("courseData")
+        .exec();
+      if (course) {
+        return course;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async createOrder(
+    userId: string,
+    courseId: string,
+    payment_info: object
+  ): Promise<object | boolean | null> {
+    try {
+      // console.log("courseId:", courseId);
+      // console.log("userId:", userId);
+
+      // console.log("paymentInfo:", payment_info);
+      const user = await userModel.findById(userId);
+
+      const courseExistInUser = user?.courses.some(
+        (course: any) => course === courseId
+      );
+
+      if (courseExistInUser) {
+        return null;
+      }
+
+      const course = await CourseModel.findById(courseId);
+
+      if (!course) {
+        return false;
+      }
+
+      const data = {
+        courseId,
+        userId,
+        payment_info,
+      };
+
+      const newOrder = await OrderModel.create(data);
+
+      user?.courses.push(course?._id);
+
+      redis.set(`user-${user?.email}`, JSON.stringify(user) as any);
+      
+
+      await user?.save();
+
+      await NotificationModel.create({
+        userId: user?._id,
+        title: "New Order",
+        message: `You hava a new order from ${course?.courseTitle}`,
+      });
+
+      course.purchased = +1;
+      await course.save();
+
+      return { newOrder, user };
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async addQuestion(
+    user: any,
+    question: string,
+    courseId: string,
+    contentId: string
+  ): Promise<boolean | null> {
+    try {
+      const course = await CourseModel.findById(courseId);
+
+      if (!mongoose.Types.ObjectId.isValid(contentId)) {
+        console.log("invalid contentId");
+        return false;
+      }
+      const courseContent = course?.courseData?.find((item: any) =>
+        item._id.equals(contentId)
+      );
+
+      if (!courseContent) {
+        return false;
+      }
+      const courseContentData = await CourseDataModel.findById(contentId);
+      if (!courseContentData) {
+        return false;
+      }
+      const newQuestion: any = {
+        user,
+        question,
+        questionReplies: [],
+      };
+      courseContentData.questions?.push(newQuestion);
+      await courseContentData.save();
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async replyToQuestion(
+    user: any,
+    answer: string,
+    courseId: string,
+    contentId: string,
+    questionId: string
+  ): Promise<boolean | null> {
+    try {
+      const course = await CourseModel.findById(courseId);
+
+      if (!mongoose.Types.ObjectId.isValid(contentId)) {
+        console.log("invalid contentId");
+        return false;
+      }
+      const courseContent = course?.courseData?.find((item: any) =>
+        item._id.equals(contentId)
+      );
+
+      if (!courseContent) {
+        return false;
+      }
+      const courseContentData = await CourseDataModel.findById(contentId);
+      if (!courseContentData) {
+        return false;
+      }
+      const question = courseContentData?.questions?.find((item: any) =>
+        item._id.equals(questionId)
+      );
+      if (!question) {
+        return false;
+      }
+      // console.log(user);
+      
+
+      const newAnswer: any = {
+        user,
+        answer,
+      };
+      question.questionReplies.push(newAnswer);
+      await courseContentData.save();
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async addReview(userEmail: string, userId: string,courseId:string, review: string, rating: number): Promise<Course | boolean | null> {
+    try {
+      console.log(userEmail,userId,review,rating);
+      const userData = await redis.get(`user-${userEmail}`);
+      if(userData === null){
+        console.log("no user data found");
+        
+        return false
+      }
+      const user:User = JSON.parse(userData);
+      // console.log(user?.courses);
+      const userCourseList = user?.courses;
+
+      const courseExists = userCourseList?.some((course_id:any)=>course_id.toString() === courseId.toString())
+     if(!courseExists){
+      console.log("no course found");
+      
+      return false
+     }
+      
+     const course = await CourseModel.findById(courseId);
+
+     const reviewData:any = {
+      user:userData,
+      Comment:review,
+      rating
+     }
+      
+     course?.reviews.push(reviewData);
+
+     let avg = 0;
+
+     course?.reviews.forEach((rev:any)=>{
+      avg += rev.rating;
+     })
+      if(course){
+      course.ratings = avg / course.reviews.length;
+      }
+  
+      await course?.save();
+
+      const notification = {
+        title:"New Review Received",
+        message:`${user.name} has given a review in ${course?.courseTitle}`
+      }
+
+
+      return course;
+
+    } catch (error) {
+      console.log(error);
+      return false
+      
     }
   }
 }

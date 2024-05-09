@@ -288,6 +288,29 @@ class adminRepositoty implements IAdminRepository {
       return null;
     }
   }
+  async changeCourseStatus(
+    status: string,
+    courseId: string
+  ): Promise<boolean | null> {
+    try {
+      const course = await CourseModel.findById(courseId);
+      if (course) {
+        if (status === "approve") {
+          course.approved = true;
+          await course.save();
+          return true;
+        } else if (status === "block") {
+          course.approved = false;
+          await course.save();
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
 }
 
 export default adminRepositoty;

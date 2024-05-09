@@ -1,4 +1,7 @@
+import { Document } from "mongoose";
 import User from "../../entities/userEntity";
+import Course from "../../entities/course";
+import Order from "../../entities/oder";
 
 interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
@@ -31,6 +34,17 @@ interface IUserRepository {
     access_token: string;
     refresh_token: string;
   } | null>;
+  getAllCourses(): Promise<Document<any, any, Course>[] | null>;
+  getCourse(_id: string): Promise<Course | null>;
+  getCourseContent(_id: string): Promise<Course | null>;
+  createOrder(
+    userId: string,
+    courseId: string,
+    payment_info: object
+  ): Promise<object | boolean | null>;
+  addQuestion(user:any,question:string,courseId:string,contentId:string):Promise<boolean|null>;
+  replyToQuestion(user:any,answer:string,courseId:string,contentId:string,questionId:string):Promise<boolean|null>;
+  addReview(userEmail:string,userId:string,courseId:string,review:string,rating:number):Promise<Course | boolean | null>;
 }
 
 export default IUserRepository;

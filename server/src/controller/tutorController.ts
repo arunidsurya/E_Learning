@@ -158,6 +158,61 @@ class tutorController {
       });
     }
   }
+  async replyToQestion(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { answer, courseId, contentId, questionId } = req.body;
+      const tutor = req.tutor;
+      const result = await this.tutorCase.replyToQuestion(
+        tutor,
+        answer,
+        courseId,
+        contentId,
+        questionId
+      );
+      if (result === false) {
+        return res.json({
+          success: false,
+          message: "Internal server error.Please try again later",
+        });
+      }
+      return res.status(201).json({
+        success: true,
+        mesage: "Reply added successfully",
+      });
+    } catch (error) {
+            console.log(error);
+      return res.json({
+        sucess: false,
+        message: "internal server error!! please try again later",
+      });
+    }
+  }
+
+    async replyToReview(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { comment, courseId,reviewId } = req.body;
+      const tutor = req.tutor;
+      const result = await this.tutorCase.replyToReview(tutor,comment,courseId,reviewId);
+      if (result === false) {
+        return res.json({
+          success: false,
+          message: "Internal server error.Please try again later",
+        });
+      }
+      return res.status(201).json({
+        success: true,
+        mesage: "Reply added successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        sucess: false,
+        message: "internal server error!! please try again later",
+      });
+    }
+  }
+
+  
 }
 
 export default tutorController;

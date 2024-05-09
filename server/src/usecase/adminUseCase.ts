@@ -236,6 +236,25 @@ class adminUseCase {
       return false;
     }
   }
+  async getAllCourses(){
+    try {
+      const result =await this.iAdminRepository.getAllCourses()
+      return result
+    } catch (error) {
+      console.log(error);
+      return null     
+    }
+  }
+  async changeCourseStatus(status:string,courseId:string){
+    try {
+      const result = await this.iAdminRepository.changeCourseStatus(status,courseId)
+      return result
+    } catch (error) {
+      console.log(error);
+      return false
+      
+    }
+  }
 }
 
 export default adminUseCase;

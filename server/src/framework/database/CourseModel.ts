@@ -1,17 +1,25 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import Course from "../../entities/course";
+import User from "../../entities/userEntity";
 
 export interface IComment extends Document {
   user: object;
-  comment: string;
-  commentReplies: IComment[];
+  question: string;
+  questionReplies: IQuestionReply[];
 }
 
-export interface IReview extends Document {
+export interface IQuestionReply extends Document {
   user: object;
+  answer: string;
+  createdAt: Date;
+}
+
+
+export interface IReview extends Document {
+  user: User;
   rating: number;
   comment: string;
-  commentReplies: IComment[];
+  commentReplies?: IComment[];
 }
 
 export interface ILink extends Document {
@@ -26,18 +34,29 @@ export const reviewSchema = new Schema<IReview>({
     default: 0,
   },
   comment: String,
-});
+  commentReplies:[Object]
+},{timestamps:true});
 
 export const linkSchema = new Schema<ILink>({
   title: String,
   url: String,
 });
 
-export const commentSchema = new Schema<IComment>({
-  user: Object,
-  comment: String,
-  commentReplies: [Object],
-});
+const questionReplySchema = new Schema<IQuestionReply>(
+  {
+    user: Object,
+    answer: String,
+  },
+  { timestamps: true }
+); 
+export const commentSchema = new Schema<IComment>(
+  {
+    user: Object,
+    question: String,
+    questionReplies: [questionReplySchema],
+  },
+  { timestamps: true }
+);
 
 const courseSchema = new Schema<Course>(
   {
@@ -110,3 +129,22 @@ const courseSchema = new Schema<Course>(
 const CourseModel: Model<Course> = mongoose.model("Course", courseSchema);
 
 export default CourseModel;
+
+
+
+
+
+
+
+
+
+
+
+
+
+questionReplySchema.pre<IQuestionReply>("save", function (next) {
+  if (!this.createdAt) {
+    this.createdAt = new Date();
+  }
+  next();
+});

@@ -22,6 +22,7 @@ interface IAdminRepository {
   deleteCategory(_id: string): Promise<boolean>;
   getCategories(): Promise<Category[] | null | boolean>;
   getAllCourses(): Promise<Document<any, any, Course>[] | null>;
+  changeCourseStatus(status:string,courseId:string): Promise<boolean | null>;
 }
 
 export default IAdminRepository;

@@ -21,6 +21,8 @@ export const isAuthenticated = async (
   const refresh_token = req.cookies.refresh_token as string;
 
   if (!access_token) {
+    console.log("unauthorisez-1");
+    
     return res
       .status(401)
       .json({ success: false, message: "Unauthorized - No token provided" });
@@ -34,9 +36,10 @@ export const isAuthenticated = async (
 
     // Proceed if the access token is valid
     const userEmail = decoded.user.email;
-    const user = await redis.get(userEmail);
+    const user = await redis.get(`user-${userEmail }`);
 
     if (!user) {
+      console.log("unauthorisez-2");
       return res
         .status(401)
         .send({ success: false, message: "User not found" });
@@ -52,6 +55,7 @@ export const isAuthenticated = async (
         // No refresh token, clear cookies and send unauthorized response
         res.clearCookie("access_token");
         res.clearCookie("refresh_token");
+        console.log("unauthorisez-3");
         return res
           .status(401)
           .send({ success: false, message: "Unauthorized - Invalid token" });
@@ -65,9 +69,10 @@ export const isAuthenticated = async (
 
         // Fetch user data from Redis using the email address from the refresh token
         const userEmail = refreshDecoded.user.email;
-        const user = await redis.get(userEmail);
+        const user = await redis.get(`user-${userEmail}`);
 
         if (!user) {
+          console.log("unauthorisez-4");
           return res
             .status(401)
             .send({ success: false, message: "User not found" });
@@ -93,6 +98,7 @@ export const isAuthenticated = async (
         // Refresh token is expired, clear cookies and send unauthorized response
         res.clearCookie("access_token");
         res.clearCookie("refresh_token");
+        console.log("unauthorisez-5");
         return res
           .status(401)
           .send({ success: false, message: "Unauthorized - Invalid token" });

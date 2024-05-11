@@ -65,7 +65,10 @@ adminRouter.get("/admin/get_categories", isAuthorized, (req, res, next) => {
   controller.getCategories(req, res, next);
 });
 adminRouter.get("/admin/courses", isAuthorized, (req, res, next) => {
-  controller.getAllCourses(req, res, next);
+  controller.getApprovedCourses(req, res, next);
+});
+adminRouter.get("/admin/non_approved_courses", isAuthorized, (req, res, next) => {
+  controller.getNonApprovedCourses(req, res, next);
 });
 adminRouter.put("/admin/change_courses_status",isAuthorized,(req, res, next) => {
     controller.changeCourseStatus(req, res, next);

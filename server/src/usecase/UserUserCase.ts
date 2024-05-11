@@ -419,6 +419,29 @@ class userUserCase {
       return false
     }
   }
+    async addChat(userName:string,userId:string,message:string,courseId:string){
+                  console.log("userName :", userName);
+                  console.log("userId :", userId);
+                  console.log("message :", message);
+                  console.log("courseId :", courseId);
+    try {
+      const result = this.iUserRepository.addChat(userName,userId,message,courseId);
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false
+    }
+  }
+
+    async getChat(courseId:string){
+    try {
+      const result = this.iUserRepository.getChat(courseId);
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false
+    }
+  }
 
 }
 

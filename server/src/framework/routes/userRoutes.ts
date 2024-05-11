@@ -76,5 +76,14 @@ userRouter.put("/user/add-review/:id", isAuthenticated, (req, res, next) => {
   controller.addReview(req, res, next);
 });
 
+userRouter.put("/user/add-chat", isAuthenticated, (req, res, next) => {
+  controller.addChat(req, res, next);
+});
+
+userRouter.get("/user/get-chat/:id", isAuthenticated, (req, res, next) => {
+  controller.getChat(req, res, next);
+});
+
+
 
 export default userRouter;

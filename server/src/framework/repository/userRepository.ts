@@ -12,6 +12,7 @@ import OrderModel from "../database/orderModel";
 import Order from "../../entities/oder";
 import NotificationModel from "../database/notificationModel";
 import CourseDataModel from "../database/courseData";
+import ChatModel from "../database/liveChat";
 
 class userRepository implements IUserRepository {
   JwtToken = new JwtTokenService();
@@ -239,7 +240,7 @@ class userRepository implements IUserRepository {
     try {
       // console.log(_id);
 
-      const course = await CourseModel.findById(_id)
+      const course = await CourseModel.findById(_id);
       if (course) {
         return course;
       } else {
@@ -304,7 +305,6 @@ class userRepository implements IUserRepository {
       user?.courses.push(course?._id);
 
       redis.set(`user-${user?.email}`, JSON.stringify(user) as any);
-      
 
       await user?.save();
 
@@ -392,7 +392,6 @@ class userRepository implements IUserRepository {
         return false;
       }
       // console.log(user);
-      
 
       const newAnswer: any = {
         user,
@@ -407,58 +406,110 @@ class userRepository implements IUserRepository {
       return false;
     }
   }
-  async addReview(userEmail: string, userId: string,courseId:string, review: string, rating: number): Promise<Course | boolean | null> {
+  async addReview(
+    userEmail: string,
+    userId: string,
+    courseId: string,
+    review: string,
+    rating: number
+  ): Promise<Course | boolean | null> {
     try {
-      console.log(userEmail,userId,review,rating);
+      console.log(userEmail, userId, review, rating);
       const userData = await redis.get(`user-${userEmail}`);
-      if(userData === null){
+      if (userData === null) {
         console.log("no user data found");
-        
-        return false
+
+        return false;
       }
-      const user:User = JSON.parse(userData);
+      const user: User = JSON.parse(userData);
       // console.log(user?.courses);
       const userCourseList = user?.courses;
 
-      const courseExists = userCourseList?.some((course_id:any)=>course_id.toString() === courseId.toString())
-     if(!courseExists){
-      console.log("no course found");
-      
-      return false
-     }
-      
-     const course = await CourseModel.findById(courseId);
+      const courseExists = userCourseList?.some(
+        (course_id: any) => course_id.toString() === courseId.toString()
+      );
+      if (!courseExists) {
+        console.log("no course found");
 
-     const reviewData:any = {
-      user:userData,
-      Comment:review,
-      rating
-     }
-      
-     course?.reviews.push(reviewData);
-
-     let avg = 0;
-
-     course?.reviews.forEach((rev:any)=>{
-      avg += rev.rating;
-     })
-      if(course){
-      course.ratings = avg / course.reviews.length;
+        return false;
       }
-  
+
+      const course = await CourseModel.findById(courseId);
+
+      const reviewData: any = {
+        user: userData,
+        Comment: review,
+        rating,
+      };
+
+      course?.reviews.push(reviewData);
+
+      let avg = 0;
+
+      course?.reviews.forEach((rev: any) => {
+        avg += rev.rating;
+      });
+      if (course) {
+        course.ratings = avg / course.reviews.length;
+      }
+
       await course?.save();
 
       const notification = {
-        title:"New Review Received",
-        message:`${user.name} has given a review in ${course?.courseTitle}`
+        title: "New Review Received",
+        message: `${user.name} has given a review in ${course?.courseTitle}`,
+      };
+
+      return course;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async addChat(
+    userName: string,
+    userId: string,
+    message: string,
+    courseId: string
+  ): Promise<boolean | null> {
+    try {
+            console.log("userName :", userName);
+            console.log("userId :", userId);
+            console.log("message :", message);
+            console.log("courseId :", courseId);
+      const course = await CourseModel.findById(courseId);
+      if (!course) {
+        return false;
       }
 
+
+      
+      const chatData = {
+        userName,
+        userId,
+        message,
+      };
+      const savedChat = await ChatModel.create(chatData);
+
+      course.chat.push(savedChat._id);
+
+      await course.save();
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async getChat(courseId: string): Promise<Course | null> {
+    try {
+      const course = await CourseModel.findById(courseId).populate("chat").exec()
 
       return course;
 
     } catch (error) {
       console.log(error);
-      return false
+      return null
       
     }
   }

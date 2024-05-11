@@ -314,47 +314,60 @@ class adminController {
       });
     } catch (error) {}
   }
-  async getAllCourses(req: Request, res: Response, next: NextFunction) { 
-        try {
-          const courses = await this.adminCase.getAllCourses();
-          if(courses===null){
-            return res.json({
-              success:false,
-              message:"No course found!!"
-            })
-          }
-          return res.status(200).json({
-            success:true,
-            courses
-          })
-        } catch (error) {
-          console.log(error);
-          
-        }
-  }
-  async changeCourseStatus(req: Request, res: Response, next: NextFunction) { 
+  async getApprovedCourses(req: Request, res: Response, next: NextFunction) {
     try {
-          const status = req.body.status;
-          const courseId = req.body.courseId;
-          const result = await this.adminCase.changeCourseStatus(
-            status,
-            courseId
-          );
-          if(result === false){
-            return res.json({
-              success:false,
-              message:"Error occured!! please try again later"
-            })
-          }
-          return res.status(201).json({
-            success:true,
-            message:"course status updated successfully!!"
-          })
+      const courses = await this.adminCase.getApprovedCourses();
+      if (courses === null) {
+        return res.json({
+          success: false,
+          message: "No course found!!",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        courses,
+      });
     } catch (error) {
       console.log(error);
-      
     }
+  }
+  async getNonApprovedCourses(req: Request, res: Response, next: NextFunction) {
+    try {
+      
+      const courses = await this.adminCase.getNonApprovedCourses();
+      if (courses === null) {
+        return res.json({
+          success: false,
+          message: "No course found!!",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        courses,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
+  async changeCourseStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const status = req.body.status;
+      const courseId = req.body.courseId;
+      const result = await this.adminCase.changeCourseStatus(status, courseId);
+      if (result === false) {
+        return res.json({
+          success: false,
+          message: "Error occured!! please try again later",
+        });
+      }
+      return res.status(201).json({
+        success: true,
+        message: "course status updated successfully!!",
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 

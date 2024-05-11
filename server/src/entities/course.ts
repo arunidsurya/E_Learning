@@ -1,4 +1,5 @@
 import { IReview } from "../framework/database/CourseModel";
+import { IChat } from "../framework/database/liveChat";
 import CourseData from "./courseData";
 
 interface Course {
@@ -19,6 +20,7 @@ interface Course {
   prerequisites: { title: string }[];
   reviews: IReview[];
   courseData: CourseData[];
+  chat:IChat[] ,
   approved?:boolean;
   ratings?: number;
   purchased?: number;

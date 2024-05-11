@@ -272,9 +272,26 @@ class adminRepositoty implements IAdminRepository {
       return false;
     }
   }
-  async getAllCourses(): Promise<Document<any, any, Course>[] | null> {
+  async getApprovedCourses(): Promise<Document<any, any, Course>[] | null> {
     try {
-      const courses = await CourseModel.find()
+      const courses = await CourseModel.find({ approved: true })
+        .populate("courseData")
+        .sort({ createdAt: -1 })
+        .exec();
+      if (courses) {
+        return courses;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async getNonApprovedCourses(): Promise<Document<any, any, Course>[] | null> {
+    try {
+      
+      const courses = await CourseModel.find({ approved: false })
         .populate("courseData")
         .sort({ createdAt: -1 })
         .exec();

@@ -45,6 +45,8 @@ interface IUserRepository {
   addQuestion(user:any,question:string,courseId:string,contentId:string):Promise<boolean|null>;
   replyToQuestion(user:any,answer:string,courseId:string,contentId:string,questionId:string):Promise<boolean|null>;
   addReview(userEmail:string,userId:string,courseId:string,review:string,rating:number):Promise<Course | boolean | null>;
+  addChat(userName:string,userId:string,message:string,courseId:string):Promise<boolean|null>;
+  getChat(courseId:string):Promise<Course | null>
 }
 
 export default IUserRepository;

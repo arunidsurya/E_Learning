@@ -87,8 +87,8 @@ const courseSchema = new Schema<Course>(
     estimatedPrice: {
       type: Number,
     },
-    totalVideos:{
-      type:Number
+    totalVideos: {
+      type: Number,
     },
     thumbnail: {
       type: String,
@@ -110,6 +110,7 @@ const courseSchema = new Schema<Course>(
     prerequisites: [{ title: String }],
     reviews: [reviewSchema],
     courseData: [{ type: Schema.Types.ObjectId, ref: "courseData" }],
+    chat: [{ type: Schema.Types.ObjectId, ref: "chat" }],
     ratings: {
       type: Number,
       default: 0,
@@ -118,10 +119,10 @@ const courseSchema = new Schema<Course>(
       type: Number,
       default: 0,
     },
-    approved:{
-      type:Boolean,
-      default:false
-    }
+    approved: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -129,13 +130,6 @@ const courseSchema = new Schema<Course>(
 const CourseModel: Model<Course> = mongoose.model("Course", courseSchema);
 
 export default CourseModel;
-
-
-
-
-
-
-
 
 
 

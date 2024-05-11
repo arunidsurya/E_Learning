@@ -236,23 +236,34 @@ class adminUseCase {
       return false;
     }
   }
-  async getAllCourses(){
+  async getApprovedCourses() {
     try {
-      const result =await this.iAdminRepository.getAllCourses()
-      return result
+      const result = await this.iAdminRepository.getApprovedCourses();
+      return result;
     } catch (error) {
       console.log(error);
-      return null     
+      return null;
     }
   }
-  async changeCourseStatus(status:string,courseId:string){
+  async getNonApprovedCourses() {
     try {
-      const result = await this.iAdminRepository.changeCourseStatus(status,courseId)
-      return result
+      const result = await this.iAdminRepository.getNonApprovedCourses();
+      return result;
     } catch (error) {
       console.log(error);
-      return false
-      
+      return null;
+    }
+  }
+  async changeCourseStatus(status: string, courseId: string) {
+    try {
+      const result = await this.iAdminRepository.changeCourseStatus(
+        status,
+        courseId
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 }

@@ -216,7 +216,7 @@ class userController {
   async getCourseContent(req: Request, res: Response, next: NextFunction) {
     try {
       const email = req.user?.email;
-      console.log(email);
+
       const { _id } = req.params;
       const result = await this.userCase.getCourseContent(_id);
       if (result === null) {
@@ -400,6 +400,57 @@ class userController {
       console.log(error);
     }
   }
+  async addChat(req: Request, res: Response, next: NextFunction) { 
+
+    const {
+      userName,
+      userId,
+      message,
+      courseId,
+    }= req.body
+
+console.log(userName, userId, message, courseId);
+
+    try {
+      const result = await this.userCase.addChat(userName,userId,message,courseId)
+      if(result===false){
+        return res.json({
+          success:false,
+          message:"Internal server error!!. Please try again later"
+        })
+      }
+      return res.status(201).json({
+        success:true,
+        message:"chat saved successfully"
+      })
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
+
+  async getChat(req: Request, res: Response, next: NextFunction) { 
+
+    const courseId=req.params.id
+
+    try {
+      const result = await this.userCase.getChat(courseId);
+      if(result === null){
+        return res.json({
+          success:false,
+          message:"internal server error, please try again later"
+        })
+      }
+      return res.json({
+        success:true,
+        result
+      })
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
+
 }
 
 export default userController;

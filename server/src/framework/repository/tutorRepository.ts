@@ -144,7 +144,6 @@ class tutorRepository implements ITutorRepository {
   async getAllCourses(
     id: string
   ): Promise<Document<any, any, Course>[] | null> {
-    console.log(id);
 
     try {
       const courses = await CourseModel.find({ instructorId: id })
@@ -268,7 +267,7 @@ class tutorRepository implements ITutorRepository {
     }
   }
   async replyToQuestion(
-    tutor:any,
+    tutor: any,
     answer: string,
     courseId: string,
     contentId: string,
@@ -295,14 +294,14 @@ class tutorRepository implements ITutorRepository {
       const question = courseContentData?.questions?.find((item: any) =>
         item._id.equals(questionId)
       );
-      if(!question){
-        return false
+      if (!question) {
+        return false;
       }
 
-      const newAnswer:any={
-          tutor,
-          answer
-      }
+      const newAnswer: any = {
+        tutor,
+        answer,
+      };
       question.questionReplies.push(newAnswer);
       await courseContentData.save();
 
@@ -312,21 +311,28 @@ class tutorRepository implements ITutorRepository {
       return false;
     }
   }
-  async replyToReview(tutor:any,comment: string, courseId: string, reviewId: string): Promise<boolean | null> {
+  async replyToReview(
+    tutor: any,
+    comment: string,
+    courseId: string,
+    reviewId: string
+  ): Promise<boolean | null> {
     try {
       const course = await CourseModel.findById(courseId);
 
-      if(!course){
-        return false
+      if (!course) {
+        return false;
       }
-      const review = course?.reviews?.find((rev:any)=>rev._id.toString() === reviewId);
-      if(!review){
-        return false
+      const review = course?.reviews?.find(
+        (rev: any) => rev._id.toString() === reviewId
+      );
+      if (!review) {
+        return false;
       }
 
-      const replyData:any={
+      const replyData: any = {
         tutor,
-        comment
+        comment,
       };
 
       review?.commentReplies?.push(replyData);
@@ -334,10 +340,49 @@ class tutorRepository implements ITutorRepository {
       await course.save();
 
       return true;
-
     } catch (error) {
       console.log(error);
-      return false
+      return false;
+    }
+  }
+
+  async addSchedule(
+    couresId: string,
+    date: string,
+    time: string,
+    meetingCode: string,
+    description: string
+  ): Promise<boolean | null> {
+    try {
+      const course = await CourseModel.findById(couresId);
+      if (!course) {
+        return false;
+      }
+      const data = {
+        date,
+        time,
+        description,
+        meetingCode,
+      };
+      course.classSchedule = data;
+      await course.save();
+      return true;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async getOneCourse(id: string): Promise<Course | null> {
+    try {
+      const course = await CourseModel.findById(id);
+
+      if(!course){
+        return null
+      }
+      return course
+    } catch (error) {
+      console.log(error);
+      return null
     }
   }
 }

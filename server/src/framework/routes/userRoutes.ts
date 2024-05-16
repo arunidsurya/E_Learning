@@ -55,6 +55,9 @@ userRouter.get("/user/getCourseContent/:_id", isAuthenticated,(req, res, next) =
 userRouter.post("/user/create-order", isAuthenticated,(req, res, next) => {
   controller.createOrder(req, res, next);
 });
+userRouter.post("/user/create-premium-order", isAuthenticated, (req, res, next) => {
+  controller.createPremiumOrder(req, res, next);
+});
 
 userRouter.get("/user/stripepublishablekey", (req, res, next) => {
   controller.sendStripePulishKey(req, res, next);
@@ -83,6 +86,12 @@ userRouter.put("/user/add-chat", isAuthenticated, (req, res, next) => {
 userRouter.get("/user/get-chat/:id", isAuthenticated, (req, res, next) => {
   controller.getChat(req, res, next);
 });
+
+userRouter.get("/user/enrolled_courses/:id", isAuthenticated, (req, res, next) => {
+  controller.getEnrolledCourses(req, res, next);
+});
+
+
 
 
 

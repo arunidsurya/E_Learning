@@ -28,6 +28,12 @@ export const initSocketServer = (server: http.Server) => {
       socket.to(data.courseId).emit("receive_message", data);
     });
 
+        socket.on("notification", (data) => {
+              console.log(data);
+            socket.broadcast.emit("receive_notification", data);
+          // socket.to(data.courseId).emit("receive_message", data);
+        });
+
     socket.on("disconnect", () => {
       console.log("A user is disconnected");
     });

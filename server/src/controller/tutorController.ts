@@ -180,7 +180,7 @@ class tutorController {
         mesage: "Reply added successfully",
       });
     } catch (error) {
-            console.log(error);
+      console.log(error);
       return res.json({
         sucess: false,
         message: "internal server error!! please try again later",
@@ -188,11 +188,16 @@ class tutorController {
     }
   }
 
-    async replyToReview(req: Request, res: Response, next: NextFunction) {
+  async replyToReview(req: Request, res: Response, next: NextFunction) {
     try {
-      const { comment, courseId,reviewId } = req.body;
+      const { comment, courseId, reviewId } = req.body;
       const tutor = req.tutor;
-      const result = await this.tutorCase.replyToReview(tutor,comment,courseId,reviewId);
+      const result = await this.tutorCase.replyToReview(
+        tutor,
+        comment,
+        courseId,
+        reviewId
+      );
       if (result === false) {
         return res.json({
           success: false,
@@ -212,7 +217,57 @@ class tutorController {
     }
   }
 
-  
+  async addSchedule(req: Request, res: Response, next: NextFunction) {
+    const courseId = req.params.id;
+    const { date, time, meetingCode, description } = req.body;
+
+    try {
+      const result = await this.tutorCase.addScehdule(
+        courseId,
+        date,
+        time,
+        meetingCode,
+        description
+      );
+      if (result === null) {
+        return res.json({
+          success: false,
+          message: "internal server error, please try again later",
+        });
+      }
+      if (result === false) {
+        return res.json({
+          success: false,
+          message: "Course not found",
+        });
+      }
+      return res.json({
+        success: true,
+        result,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getOneCourse(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    try {
+      const result = await this.tutorCase.getOneCourse(id);
+      if (result === null) {
+        return res.json({
+          success: false,
+          message: "internal server error, please try again later",
+        });
+      }
+
+      return res.json({
+        success: true,
+        result,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default tutorController;

@@ -110,6 +110,15 @@ const courseSchema = new Schema<Course>(
     prerequisites: [{ title: String }],
     reviews: [reviewSchema],
     courseData: [{ type: Schema.Types.ObjectId, ref: "courseData" }],
+    classSchedule: {
+      type: {
+        date: String,
+        time: String,
+        description: String,
+        meetingCode: String,
+      },
+      default: {},
+    },
     chat: [{ type: Schema.Types.ObjectId, ref: "chat" }],
     ratings: {
       type: Number,
@@ -130,8 +139,6 @@ const courseSchema = new Schema<Course>(
 const CourseModel: Model<Course> = mongoose.model("Course", courseSchema);
 
 export default CourseModel;
-
-
 
 
 

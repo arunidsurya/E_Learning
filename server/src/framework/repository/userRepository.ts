@@ -13,6 +13,7 @@ import Order from "../../entities/oder";
 import NotificationModel from "../database/notificationModel";
 import CourseDataModel from "../database/courseData";
 import ChatModel from "../database/liveChat";
+import PremiumOrderModel from "../database/PremiumOrderModel";
 
 class userRepository implements IUserRepository {
   JwtToken = new JwtTokenService();
@@ -104,8 +105,8 @@ class userRepository implements IUserRepository {
             upload_preset: "E_Learning",
             folder: "avatars",
           });
-          user.name = name;
-          user.email = email;
+          user.name = name || user.name;
+          user.email = email || user.email;
           user.avatar = {
             url: uploadRes.secure_url,
             public_id: uploadRes.public_id,
@@ -122,6 +123,10 @@ class userRepository implements IUserRepository {
             public_id: uploadRes.public_id,
           };
         }
+      }
+      if (!avatar && user) {
+        user.name = name || user.name;
+        user.email = email || user.email;
       }
 
       await user.save();
@@ -240,7 +245,9 @@ class userRepository implements IUserRepository {
     try {
       // console.log(_id);
 
-      const course = await CourseModel.findById(_id);
+      const course = await CourseModel.findById(_id)
+        .populate("courseData")
+        .exec();
       if (course) {
         return course;
       } else {
@@ -473,17 +480,15 @@ class userRepository implements IUserRepository {
     courseId: string
   ): Promise<boolean | null> {
     try {
-            console.log("userName :", userName);
-            console.log("userId :", userId);
-            console.log("message :", message);
-            console.log("courseId :", courseId);
+      console.log("userName :", userName);
+      console.log("userId :", userId);
+      console.log("message :", message);
+      console.log("courseId :", courseId);
       const course = await CourseModel.findById(courseId);
       if (!course) {
         return false;
       }
 
-
-      
       const chatData = {
         userName,
         userId,
@@ -503,16 +508,81 @@ class userRepository implements IUserRepository {
   }
   async getChat(courseId: string): Promise<Course | null> {
     try {
-      const course = await CourseModel.findById(courseId).populate("chat").exec()
+      const course = await CourseModel.findById(courseId)
+        .populate("chat")
+        .exec();
 
       return course;
-
     } catch (error) {
       console.log(error);
-      return null
-      
+      return null;
     }
   }
+  async getErolledCourses(userId: string): Promise<Course[] | null> {
+    try {
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return null;
+      }
+      const courses = user.courses;
+      // console.log(courses);
+
+      const enrolled_courses = await CourseModel.find({
+        _id: { $in: courses },
+      });
+
+      // console.log(enrolled_courses);
+
+      return enrolled_courses;
+    } catch (error) {
+      console.log(error);
+
+      return null;
+    }
+  }
+  async createPremiumOrder(
+    userId: string,
+    payment_info: object
+  ): Promise<object | boolean | null> {
+    try {
+      // console.log("userId:", userId);
+
+      // console.log("paymentInfo:", payment_info);
+      const user = await userModel.findById(userId);
+
+      if (user?.premiumAccount) {
+        return null;
+      }
+
+      const data = {
+        userId,
+        payment_info,
+      };
+
+      const newOrder = await PremiumOrderModel.create(data);
+
+      // console.log(newOrder);
+
+      if (user) {
+        user.premiumAccount = true;
+        const updatedUser = await user.save()!;
+
+        redis.set(`user-${user?.email}`, JSON.stringify(updatedUser) as any);
+      }
+
+      await NotificationModel.create({
+        userId: user?._id,
+        title: "New Premium Order",
+        message: `You hava a new order from ${user?.name}`,
+      });
+
+      return { newOrder, user };
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
 }
 
 export default userRepository;

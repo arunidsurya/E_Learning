@@ -400,57 +400,132 @@ class userController {
       console.log(error);
     }
   }
-  async addChat(req: Request, res: Response, next: NextFunction) { 
+  async addChat(req: Request, res: Response, next: NextFunction) {
+    const { userName, userId, message, courseId } = req.body;
 
-    const {
-      userName,
-      userId,
-      message,
-      courseId,
-    }= req.body
-
-console.log(userName, userId, message, courseId);
+    console.log(userName, userId, message, courseId);
 
     try {
-      const result = await this.userCase.addChat(userName,userId,message,courseId)
-      if(result===false){
+      const result = await this.userCase.addChat(
+        userName,
+        userId,
+        message,
+        courseId
+      );
+      if (result === false) {
         return res.json({
-          success:false,
-          message:"Internal server error!!. Please try again later"
-        })
+          success: false,
+          message: "Internal server error!!. Please try again later",
+        });
       }
       return res.status(201).json({
-        success:true,
-        message:"chat saved successfully"
-      })
+        success: true,
+        message: "chat saved successfully",
+      });
     } catch (error) {
       console.log(error);
-      
     }
   }
 
-  async getChat(req: Request, res: Response, next: NextFunction) { 
-
-    const courseId=req.params.id
+  async getChat(req: Request, res: Response, next: NextFunction) {
+    const courseId = req.params.id;
 
     try {
       const result = await this.userCase.getChat(courseId);
-      if(result === null){
+      if (result === null) {
         return res.json({
-          success:false,
-          message:"internal server error, please try again later"
-        })
+          success: false,
+          message: "internal server error, please try again later",
+        });
       }
       return res.json({
-        success:true,
-        result
-      })
+        success: true,
+        result,
+      });
     } catch (error) {
       console.log(error);
-      
     }
   }
 
+  async getEnrolledCourses(req: Request, res: Response, next: NextFunction) {
+    const userId = req.params.id;
+
+    try {
+      const result = await this.userCase.getEnrolledCourses(userId);
+      if (result === null) {
+        return res.json({
+          success: false,
+          message: "internal server error, please try again later",
+        });
+      }
+      return res.json({
+        success: true,
+        result,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async createPremiumOrder(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { payment_info } = req.body;
+
+      // console.log(payment_info);
+
+      const userId = req.user?._id;
+      if (!userId) {
+        return res.json({
+          success: false,
+          message: "Pleae Login to access this functionality",
+        });
+      }
+
+      if (payment_info) {
+        if ("id" in payment_info) {
+          const paymentIntentId = payment_info.id;
+          const paymentIntent = await stripe.paymentIntents.retrieve(
+            paymentIntentId
+          );
+          if (paymentIntent.status !== "succeeded") {
+            console.log("not succeeded");
+
+            return res.json({
+              success: false,
+              message: "Payment not authorized!",
+            });
+          }
+        }
+      }
+      const result = await this.userCase.createPremiumOrder(
+        userId,
+        payment_info
+      );
+
+      if (result === null) {
+        return res.json({
+          success: false,
+          message: "you have already Purchased this course ",
+        });
+      }
+      if (result === false) {
+        return res.json({
+          success: false,
+          message: "No course found !!",
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: "order created successfully",
+        result,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  
 }
 
 export default userController;

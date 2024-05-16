@@ -48,7 +48,11 @@ tutorRouter.put( "/tutor/reply-question",isTutuorAuthorized,(req, res, next) => 
 tutorRouter.put( "/tutor/reply-review",isTutuorAuthorized,(req, res, next) => {
     controller.replyToReview(req, res, next);
   });
-
-
+tutorRouter.put("/tutor/add-schedule/:id", isTutuorAuthorized, (req, res, next) => {
+  controller.addSchedule(req, res, next);
+});
+tutorRouter.get("/tutor/get-one-course/:id", isTutuorAuthorized, (req, res, next) => {
+  controller.getOneCourse(req, res, next);
+});
 
 export default tutorRouter;

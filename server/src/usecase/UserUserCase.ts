@@ -92,7 +92,6 @@ class userUserCase {
     try {
       // console.log(email);
       const user = await this.iUserRepository.findByEmail(email);
-      console.log(user);
 
       if (!user) {
         return {
@@ -371,6 +370,26 @@ class userUserCase {
       return false;
     }
   }
+  async createPremiumOrder(
+    userId: string,
+    payment_info: object
+  ) {
+    try {
+      console.log("Reached here");
+      
+      const result = this.iUserRepository.createPremiumOrder(
+        userId,
+        payment_info
+      );
+      console.log(result);
+      
+      return result;
+
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
   async addQuestion(
     user: any,
     question: string,
@@ -410,36 +429,68 @@ class userUserCase {
       return false;
     }
   }
-  async addReview(userEmail: any, userId: string, courseId:string, review: string, rating: number){
+  async addReview(
+    userEmail: any,
+    userId: string,
+    courseId: string,
+    review: string,
+    rating: number
+  ) {
     try {
-      const result = this.iUserRepository.addReview(userEmail,userId,courseId,review,rating);
+      const result = this.iUserRepository.addReview(
+        userEmail,
+        userId,
+        courseId,
+        review,
+        rating
+      );
       return result;
     } catch (error) {
       console.log(error);
-      return false
+      return false;
     }
   }
-    async addChat(userName:string,userId:string,message:string,courseId:string){
-                  console.log("userName :", userName);
-                  console.log("userId :", userId);
-                  console.log("message :", message);
-                  console.log("courseId :", courseId);
+  async addChat(
+    userName: string,
+    userId: string,
+    message: string,
+    courseId: string
+  ) {
+    console.log("userName :", userName);
+    console.log("userId :", userId);
+    console.log("message :", message);
+    console.log("courseId :", courseId);
     try {
-      const result = this.iUserRepository.addChat(userName,userId,message,courseId);
+      const result = this.iUserRepository.addChat(
+        userName,
+        userId,
+        message,
+        courseId
+      );
       return result;
     } catch (error) {
       console.log(error);
-      return false
+      return false;
     }
   }
 
-    async getChat(courseId:string){
+  async getChat(courseId: string) {
     try {
       const result = this.iUserRepository.getChat(courseId);
       return result;
     } catch (error) {
       console.log(error);
-      return false
+      return false;
+    }
+  }
+
+  async getEnrolledCourses(userId: string) {
+    try {
+      const result = this.iUserRepository.getErolledCourses(userId);
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 

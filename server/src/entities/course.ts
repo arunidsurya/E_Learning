@@ -20,6 +20,7 @@ interface Course {
   prerequisites: { title: string }[];
   reviews: IReview[];
   courseData: CourseData[];
+  classSchedule:{date:string,time:string,description:string,meetingCode:string};
   chat:IChat[] ,
   approved?:boolean;
   ratings?: number;

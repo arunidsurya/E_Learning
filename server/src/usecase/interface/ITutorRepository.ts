@@ -15,10 +15,29 @@ interface ITutorRepository {
   createCourse(data: Course): Promise<Document<any, any, Course> | null>;
   editCourse(data: Course): Promise<Document<any, any, Course> | null>;
   deleteCourse(_id: string): Promise<Boolean | null>;
-  getAllCourses(id:string): Promise<Document<any, any, Course>[] | null>;
+  getAllCourses(id: string): Promise<Document<any, any, Course>[] | null>;
+  getOneCourse(id: string): Promise<Course | null>;
   getCategories(): Promise<Category[] | null | boolean>;
-  replyToQuestion(tutor:any,answer:string,courseId:string,contentId:string,questionId:string):Promise<boolean|null>
-  replyToReview(tutor:any,comment:string,courseId:string,reviewId:string):Promise<boolean|null>
+  replyToQuestion(
+    tutor: any,
+    answer: string,
+    courseId: string,
+    contentId: string,
+    questionId: string
+  ): Promise<boolean | null>;
+  replyToReview(
+    tutor: any,
+    comment: string,
+    courseId: string,
+    reviewId: string
+  ): Promise<boolean | null>;
+  addSchedule(
+    courseId: string,
+    date: string,
+    time: string,
+    meetingCode: string,
+    description: string
+  ): Promise<boolean | null>;
 }
 
 export default ITutorRepository;

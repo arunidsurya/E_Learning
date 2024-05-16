@@ -113,8 +113,6 @@ class tutorUseCase {
   }
   async getAllCourses(id: string) {
     try {
-      console.log("call1");
-
       const courses = await this.iTutorRepository.getAllCourses(id);
 
       if (courses === null) {
@@ -146,26 +144,77 @@ class tutorUseCase {
       return false;
     }
   }
-  async replyToQuestion(tutor:any,answer:string,courseId:string,contentId:string,questionId:string){
+  async replyToQuestion(
+    tutor: any,
+    answer: string,
+    courseId: string,
+    contentId: string,
+    questionId: string
+  ) {
     try {
-      const result = await this.iTutorRepository.replyToQuestion(tutor,answer,courseId,contentId,questionId);
-      return result
+      const result = await this.iTutorRepository.replyToQuestion(
+        tutor,
+        answer,
+        courseId,
+        contentId,
+        questionId
+      );
+      return result;
     } catch (error) {
       console.log(error);
-      return false  
+      return false;
     }
   }
 
-    async replyToReview(tutor:any,comment: string, courseId: string, reviewId: string){
+  async replyToReview(
+    tutor: any,
+    comment: string,
+    courseId: string,
+    reviewId: string
+  ) {
     try {
-      const result = await this.iTutorRepository.replyToReview(tutor,comment, courseId, reviewId);
+      const result = await this.iTutorRepository.replyToReview(
+        tutor,
+        comment,
+        courseId,
+        reviewId
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async addScehdule(
+    couresId: string,
+    date: string,
+    time: string,
+    meetingCode: string,
+    description: string
+  ) {
+    try {
+      const result = await this.iTutorRepository.addSchedule(
+        couresId,
+        date,
+        time,
+        meetingCode,
+        description
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+  async getOneCourse(id: string){
+    try {
+      const result = await this.iTutorRepository.getOneCourse(id)
       return result
     } catch (error) {
       console.log(error);
-      return false  
+      return null  
     }
   }
-    
 }
 
 export default tutorUseCase;

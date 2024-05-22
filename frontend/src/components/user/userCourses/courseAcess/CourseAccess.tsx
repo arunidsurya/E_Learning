@@ -99,6 +99,8 @@ const CourseAccess = () => {
           setActiveVideo={setActiveVideo}
           data={data}
           activeVideo={activeVideo}
+          user={user}
+          courseId={courseId}
         />
       </div>
     </div>

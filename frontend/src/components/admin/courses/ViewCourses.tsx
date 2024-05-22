@@ -8,6 +8,7 @@ import {
   getCourses,
   handleChangeCourseStatus,
 } from "../../services/api/adminApi";
+import { formatDate } from "../../services/formats/FormatDate";
 
 interface Course {
   _id: string;
@@ -70,27 +71,6 @@ const ViewCourses: React.FC = () => {
     coursesdata();
   }, [message, error]);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const monthIndex = date.getMonth();
-    const year = date.getFullYear();
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return `${day}-${months[monthIndex]}-${year}`;
-  };
 
   const handleClick = async (status: string, courseId: any) => {
     setError("");

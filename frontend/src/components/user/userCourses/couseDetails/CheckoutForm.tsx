@@ -9,6 +9,7 @@ import axios from "axios";
 import { redirect, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { SaveUser } from "../../../../redux/features/loginSlice";
+import { handleCreateOrder } from "../../../services/api/userApi";
 
 type Props = {
   setOpen: any;
@@ -42,16 +43,12 @@ const CheckoutForm: React.FC<Props> = ({ setOpen, course, socket}) => {
       setIsLoading(false);
     } else if (paymentIntent && paymentIntent.status === "succeeded") {
       setIsLoading(false);
-      axios
-        .post(
-          "http://localhost:5000/api/v1/user/create-order",
-          { courseId: course._id, payment_info: paymentIntent },
-          {
-            withCredentials: true,
-          }
-        )
-        .then((res: any) => {
-          if (res.data.success) {
+
+      const payment_info = paymentIntent;
+      const courseId = course._id;
+
+      const res = await handleCreateOrder(courseId, payment_info);
+          if (res?.data.success) {
             console.log(res.data);
 
             setOrderData(res.data.result.newOrder);
@@ -59,17 +56,12 @@ const CheckoutForm: React.FC<Props> = ({ setOpen, course, socket}) => {
 
             socket.emit("notification",{
               title:'New Order',
-              messgae:`New order from ${course.courseTitle}`,
+              message:`New order from ${course.courseTitle}`,
               userId:res.data.result.user._id,
-              userName:res.data.result.user.name
+              createdAt:Date.now()
             })
 
           }
-        })
-        .catch((error: any) => {
-          console.log(error);
-          setError(error);
-        });
     }
   };
   useEffect(() => {

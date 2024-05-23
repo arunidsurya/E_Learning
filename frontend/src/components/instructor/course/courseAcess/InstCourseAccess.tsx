@@ -22,7 +22,7 @@ const InstCourseAccess = () => {
 
   const params = useParams();
   const courseId = params._id || "";
-  console.log("courseID:",courseId);
+
   
   const navigate = useNavigate();
 
